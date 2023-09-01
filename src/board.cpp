@@ -49,9 +49,15 @@ Board::Board() {
   this->whiteKing = 0x000000000000008ULL;
   this->blackKing = 0x0800000000000000ULL;
 
-  this->blackPawns >>= 32;
+  //this->blackPawns >>= 32;
   this->whitePawns >>= 15;
   this->whitePawns <<= 15;
+  this->whitePawns = 0;
+
+  // this->whiteRooks <<= 24;
+  // this->whiteQueens <<= 24;
+  // this->whiteKing <<= 24;
+  // this->whiteKnights <<= 32;
 
   uint64_t** bitboards = new uint64_t*[12];
   this->bitboards[0] = &this->whitePawns;

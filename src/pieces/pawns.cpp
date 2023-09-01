@@ -54,7 +54,7 @@ std::vector<uint16_t> Board::pawnMoves(bool color){
         }
         else {
             if ((combinedOccupation() & (isolatedPawn >> 8)) == 0){
-                movements |= (isolatedPawn << 8);
+                movements |= (isolatedPawn >> 8);
                 // Make sure nothing is in the way of double push
                 if (from >= 8 && from <= 15 && (combinedOccupation() & (isolatedPawn >> 16)) == 0){
                     movements |= (isolatedPawn >> 16);

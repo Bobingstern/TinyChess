@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 #include <vector>
+#include <stdlib.h>
+
 
 #define bitRead(value, bit) (((value) >> (63 - bit)) & 0x01)
 #define bitSet(value, bit) ((value) |= (1UL << (63 - bit)))
@@ -30,16 +32,37 @@ class Board {
     void printAllBitBoards();
 
     // Move generator
-    
+    void makeMove(uint16_t a);
+    void unmakeMove(uint16_t a);
+    // History
+    std::vector<uint8_t> captures;
     //Utilities
     uint64_t whiteOccupation();
     uint64_t blackOccupation();
     uint64_t combinedOccupation();
+    uint64_t bitReverse(uint64_t n);
+    uint64_t flipVertical(uint64_t n);
+    uint64_t rotate90(uint64_t n);
+    uint64_t rotateAnti90(uint64_t n);
+
+    uint64_t obstructionDifference(uint8_t from, uint64_t ray);
+    uint64_t fileAttacks(uint8_t from);
+    uint64_t rankAttacks(uint8_t from);
+    uint64_t rookAttacks(uint8_t from);
+    uint64_t bishopAttacks(uint8_t from);
+    uint64_t knightAttacks(uint64_t isolated, uint8_t from);
+    uint64_t kingAttacks(uint64_t isolated, uint8_t from);
     void printMove(uint16_t a);
-    void makeMove(uint16_t a);
+
+
+    
 
     std::vector<uint16_t> pawnMoves(bool color);
-
+    std::vector<uint16_t> rookMoves(bool color);
+    std::vector<uint16_t> bishopMoves(bool color);
+    std::vector<uint16_t> queenMoves(bool color);
+    std::vector<uint16_t> knightMoves(bool color);
+    std::vector<uint16_t> kingMoves(bool color);
 
     uint64_t whitePawns;
     uint64_t blackPawns;
