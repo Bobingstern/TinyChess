@@ -15,11 +15,9 @@ uint64_t Board::bishopAttacks(uint8_t from){
     return obstructionDifference(from, positiveDiagonalRay) | obstructionDifference(from, negativeDiagonalRay);
 }
 
-std::vector<uint16_t> Board::bishopMoves(bool color){
+int Board::bishopMoves(bool color, uint16_t* moves, int i){
 
-    std::vector<uint16_t> moves;
     uint64_t bishopsCopy = color == 0 ? whiteBishops : blackBishops;
-    
     while (bishopsCopy != 0){
         uint64_t isolatedBishop = bishopsCopy & ((~bishopsCopy)+1);
         uint8_t from = 63 - __builtin_ctzll(isolatedBishop);
@@ -30,15 +28,17 @@ std::vector<uint16_t> Board::bishopMoves(bool color){
             uint8_t to = 63 - __builtin_ctzll(isolatedAttack);
             // tis a capture of the opposing color
             if (((color == 0 ? blackOccupation() : whiteOccupation()) & isolatedAttack ) != 0){
-                moves.push_back(movePack(from, to, false, false, false, true, 0));
+                moves[i] = (movePack(from, to, false, false, false, true, 0));
+                i++;
             }
             else if ( ((color == 0 ? whiteOccupation() : blackOccupation()) & isolatedAttack ) == 0 ){
                 // No capture and not our own color
-                moves.push_back(movePack(from, to, false, false, false, false, 0));
+                moves[i] = (movePack(from, to, false, false, false, false, 0));
+                i++;
             }
             attacks &= ~isolatedAttack;
         }
         bishopsCopy &= ~isolatedBishop;
     }
-    return moves;
+    return i;
 }

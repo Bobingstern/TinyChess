@@ -23,6 +23,7 @@ void moveSet(uint16_t& move, uint8_t from, uint8_t to, bool doublePawnPush, bool
 uint16_t movePack(uint8_t from, uint8_t to, bool doublePawnPush, bool enPassant, uint8_t promo, bool capture,
                   uint8_t castle);
 
+
 class Board {
   public:
     Board();
@@ -36,6 +37,7 @@ class Board {
     void unmakeMove(uint16_t a);
     // History
     std::vector<uint8_t> captures;
+    bool color; // 0 == White
     //Utilities
     uint64_t whiteOccupation();
     uint64_t blackOccupation();
@@ -54,15 +56,14 @@ class Board {
     uint64_t kingAttacks(uint64_t isolated, uint8_t from);
     void printMove(uint16_t a);
 
+    int pawnMoves(bool color, uint16_t* moves, int i);
+    int rookMoves(bool color, uint16_t* moves, int i);
+    int bishopMoves(bool color, uint16_t* moves, int i);
+    int queenMoves(bool color, uint16_t* moves, int i);
+    int knightMoves(bool color, uint16_t* moves, int i);
+    int kingMoves(bool color, uint16_t* moves, int i);
 
-    
-
-    std::vector<uint16_t> pawnMoves(bool color);
-    std::vector<uint16_t> rookMoves(bool color);
-    std::vector<uint16_t> bishopMoves(bool color);
-    std::vector<uint16_t> queenMoves(bool color);
-    std::vector<uint16_t> knightMoves(bool color);
-    std::vector<uint16_t> kingMoves(bool color);
+    int generateMoves(uint16_t* moves);
 
     uint64_t whitePawns;
     uint64_t blackPawns;
@@ -77,5 +78,4 @@ class Board {
     uint64_t whiteKing;
     uint64_t blackKing;
     uint64_t** bitboards = new uint64_t*[12];
-
 };

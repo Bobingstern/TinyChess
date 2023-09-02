@@ -8,11 +8,9 @@
 
 // Move order
 
-std::vector<uint16_t> Board::pawnMoves(bool color){
+int Board::pawnMoves(bool color, uint16_t* moves, int i){
     // Captures
-    std::vector<uint16_t> moves;
     uint64_t pawnsCopy = color == 0 ? whitePawns : blackPawns;
-    
     while (pawnsCopy != 0){
         uint64_t isolatedPawn = pawnsCopy & ((~pawnsCopy)+1);
         uint8_t from = 63 - __builtin_ctzll(isolatedPawn);
@@ -36,7 +34,8 @@ std::vector<uint16_t> Board::pawnMoves(bool color){
             uint64_t isolatedAttack = movements & ((~movements)+1);
             uint8_t to = 63 - __builtin_ctzll(isolatedAttack);
             if (( (color == 0 ? blackOccupation() : whiteOccupation()) & isolatedAttack ) != 0){
-                moves.push_back(movePack(from, to, false, false, false, true, 0));
+                moves[i] = movePack(from, to, false, false, false, true, 0);
+                i++;
             }
             movements &= ~isolatedAttack;
         }
@@ -65,13 +64,13 @@ std::vector<uint16_t> Board::pawnMoves(bool color){
         while (movements != 0){
             uint64_t isolatedPush = movements & ((~movements)+1);
             uint8_t to = 63 - __builtin_ctzll(isolatedPush);
-            moves.push_back(movePack(from, to, false, false, false, false, 0));
+            moves[i] = movePack(from, to, false, false, false, false, 0);
+            i++;
             movements &= ~isolatedPush;
         }
 
         pawnsCopy &= ~isolatedPawn;
     }
-
-    return moves;
+    return i;
 
 }

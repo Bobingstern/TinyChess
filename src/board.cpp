@@ -50,9 +50,9 @@ Board::Board() {
   this->blackKing = 0x0800000000000000ULL;
 
   //this->blackPawns >>= 32;
-  this->whitePawns >>= 15;
-  this->whitePawns <<= 15;
-  this->whitePawns = 0;
+  // this->whitePawns >>= 15;
+  // this->whitePawns <<= 15;
+  // this->whitePawns = 0;
 
   // this->whiteRooks <<= 24;
   // this->whiteQueens <<= 24;
@@ -72,6 +72,7 @@ Board::Board() {
   this->bitboards[9] = &this->blackBishops;
   this->bitboards[10] = &this->blackQueens;
   this->bitboards[11] = &this->blackKing;
+  color = 0;
 }
 void Board::printBitBoard(uint64_t bb) {
   for (uint8_t y = 0; y < 8; y++) {
