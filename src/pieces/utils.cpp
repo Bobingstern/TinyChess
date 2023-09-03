@@ -78,13 +78,5 @@ uint64_t Board::obstructionDifference(uint8_t from, uint64_t ray){
     return odiff & linemaskEx;
 }
 
-uint64_t Board::rankAttacks(uint8_t from){
-    uint64_t rank = (0xFFULL << ( 8*(7 - (uint8_t)(from / 8) )));
-    return obstructionDifference(from, rank);
-}
 
-uint64_t Board::fileAttacks(uint8_t from){
-    uint64_t file = (0x101010101010101ULL << (uint8_t)(7 - (from % 8)));
-    return obstructionDifference(from, file);
-}
 

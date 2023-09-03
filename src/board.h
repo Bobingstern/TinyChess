@@ -36,7 +36,13 @@ class Board {
     void makeMove(uint16_t a);
     void unmakeMove(uint16_t a);
     // History
-    std::vector<uint8_t> captures;
+    int captures[32];
+    int currentCapture = 0;
+    int depth = 0;
+    uint16_t previousMoves[128];
+    uint16_t previousMover[128];
+    int caps = 0;
+    
     bool color; // 0 == White
     //Utilities
     uint64_t whiteOccupation();
@@ -54,6 +60,14 @@ class Board {
     uint64_t bishopAttacks(uint8_t from);
     uint64_t knightAttacks(uint64_t isolated, uint8_t from);
     uint64_t kingAttacks(uint64_t isolated, uint8_t from);
+
+    uint64_t pawnAttackers;
+    uint64_t rookAttackers;
+    uint64_t knightAttackers;
+    uint64_t bishopAttackers;
+    uint64_t queenAttackers;
+    uint64_t kingAttackers;
+
     void printMove(uint16_t a);
 
     int pawnMoves(bool color, uint16_t* moves, int i);
@@ -64,6 +78,8 @@ class Board {
     int kingMoves(bool color, uint16_t* moves, int i);
 
     int generateMoves(uint16_t* moves);
+    bool isLegal();
+    int movesFromIndex(int i, uint16_t* moves);
 
     uint64_t whitePawns;
     uint64_t blackPawns;

@@ -23,6 +23,7 @@ int Board::bishopMoves(bool color, uint16_t* moves, int i){
         uint8_t from = 63 - __builtin_ctzll(isolatedBishop);
         uint64_t attacks = bishopAttacks(from);
         //printBitBoard(attacks);
+        bishopAttackers |= attacks;
         while (attacks != 0){
             uint64_t isolatedAttack = attacks & ((~attacks)+1);
             uint8_t to = 63 - __builtin_ctzll(isolatedAttack);

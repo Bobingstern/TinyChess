@@ -39,6 +39,7 @@ int Board::knightMoves(bool color, uint16_t* moves, int i){
         uint8_t from = 63 - __builtin_ctzll(isolatedKnight);
         uint64_t attacks = knightAttacks(isolatedKnight, from);
         //printBitBoard(attacks);
+        knightAttackers |= attacks;
         while (attacks != 0){
             uint64_t isolatedAttack = attacks & ((~attacks)+1);
             uint8_t to = 63 - __builtin_ctzll(isolatedAttack);

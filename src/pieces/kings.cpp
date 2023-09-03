@@ -33,6 +33,7 @@ int Board::kingMoves(bool color, uint16_t* moves, int i){
         uint8_t from = 63 - __builtin_ctzll(isolatedKing);
         uint64_t attacks = kingAttacks(isolatedKing, from);
         //printBitBoard(kingAttacks(isolatedKing, from));
+        kingAttackers |= attacks;
         while (attacks != 0){
             uint64_t isolatedAttack = attacks & ((~attacks)+1);
             uint8_t to = 63 - __builtin_ctzll(isolatedAttack);

@@ -14,6 +14,7 @@ int Board::queenMoves(bool color, uint16_t* moves, int i){
         uint8_t from = 63 - __builtin_ctzll(isolatedQueen);
         uint64_t attacks = rookAttacks(from) | bishopAttacks(from);
         //printBitBoard(isolatedQueen);
+        queenAttackers |= attacks;
         while (attacks != 0){
             uint64_t isolatedAttack = attacks & ((~attacks)+1);
             uint8_t to = 63 - __builtin_ctzll(isolatedAttack);
