@@ -73,3 +73,9 @@ uint64_t Board::obstructionDifference(uint8_t from, uint64_t ray) {
   uint64_t odiff = upper ^ (upper - ms1B);
   return odiff & linemaskEx;
 }
+
+uint64_t Board::attackHQ(uint64_t mask, uint64_t isolated, uint8_t from) {
+  uint64_t o = combinedOccupation() & mask;
+  uint64_t r = bitReverse(o);
+  return ((o - isolated) ^ bitReverse(r - (1ULL << (from ^ 56)))) & mask;
+}

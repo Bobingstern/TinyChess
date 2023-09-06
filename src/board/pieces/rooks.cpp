@@ -13,6 +13,7 @@ uint64_t Board::rankAttacks(uint8_t from) {
 
 uint64_t Board::fileAttacks(uint8_t from) {
   uint64_t file = (0x101010101010101ULL << (uint8_t)(7 - (from % 8)));
+
   return obstructionDifference(from, file);
 }
 
