@@ -35,12 +35,13 @@ class Board {
     // Move generator
     void makeMove(uint16_t a);
     void unmakeMove(uint16_t a);
+    void sliceReadd();
     // History
     int captures[32];
     int currentCapture = 0;
     int depth = 0;
-    uint16_t previousMoves[128];
-    uint16_t previousMover[128];
+    uint16_t previousMoves[12];
+    uint16_t previousMover[12];
     int caps = 0;
     
     bool color; // 0 == White
@@ -54,6 +55,8 @@ class Board {
     uint64_t rotateAnti90(uint64_t n);
 
     uint64_t obstructionDifference(uint8_t from, uint64_t ray);
+    uint64_t attackHQ(uint64_t mask, uint64_t isolated, uint8_t from);
+
     uint64_t fileAttacks(uint8_t from);
     uint64_t rankAttacks(uint8_t from);
     uint64_t rookAttacks(uint8_t from);
@@ -68,6 +71,20 @@ class Board {
     uint64_t queenAttackers;
     uint64_t kingAttackers;
 
+    // Castling flags
+    bool flagWhiteKingsideCastle = 1; // 1 means it can castle
+    int wkscDepth = -1; // White king sidecastle trip depth
+
+    bool flagWhiteQueensideCastle = 1;
+    int wqscDepth = -1;
+
+    bool flagBlackKingsideCastle = 1;
+    int bkscDepth = -1;
+
+    bool flagBlackQueensideCastle = 1;
+    int bqscDepth = -1;
+
+
     void printMove(uint16_t a);
 
     int pawnMoves(bool color, uint16_t* moves, int i);
@@ -77,9 +94,12 @@ class Board {
     int knightMoves(bool color, uint16_t* moves, int i);
     int kingMoves(bool color, uint16_t* moves, int i);
 
-    int generateMoves(uint16_t* moves);
-    bool isLegal();
+    int generateMoves(uint16_t* moves, uint64_t &pawnAttacks, uint64_t &rookAttacks, uint64_t &knightAttacks, uint64_t &bishopAttacks, uint64_t &queenAttacks, uint64_t &kingAttacks);
+    bool isLegal(uint64_t& attackers);
     int movesFromIndex(int i, uint16_t* moves);
+    void resetAttackers();
+    void setAttackers(uint64_t &pawnAttacks, uint64_t &rookAttacks, uint64_t &knightAttacks, uint64_t &bishopAttacks, uint64_t &queenAttacks, uint64_t &kingAttacks);
+    uint64_t getAttackers();
 
     uint64_t whitePawns;
     uint64_t blackPawns;

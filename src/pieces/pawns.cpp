@@ -102,7 +102,7 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i){
         }
         
         // Push the moves
-        pawnAttackers |= movements;
+        //pawnAttackers |= movements;
         while (movements != 0){
             uint64_t isolatedPush = movements & ((~movements)+1);
             int to = 63 - __builtin_ctzll(isolatedPush);
