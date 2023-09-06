@@ -1,51 +1,65 @@
-#include <iostream>
+#include "board/board.h"
 #include <bitset>
-#include "board.h"
 #include <chrono>
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <vector>
 
-void numToLetter(uint8_t a){
-    if (a % 8 == 0){
-        std::cout << "a";
-    }
-    if (a % 8 == 1){
-        std::cout << "b";
-    }
-    if (a % 8 == 2){
-        std::cout << "c";
-    }
-    if (a % 8 == 3){
-        std::cout << "d";
-    }
-    if (a % 8 == 4){
-        std::cout << "e";
-    }
-    if (a % 8 == 5){
-        std::cout << "f";
-    }
-    if (a % 8 == 6){
-        std::cout << "g";
-    }
-    if (a % 8 == 7){
-        std::cout << "h";
-    }
+void numToLetter(uint8_t a) {
+  if (a % 8 == 0) {
+    std::cout << "a";
+  }
+  if (a % 8 == 1) {
+    std::cout << "b";
+  }
+  if (a % 8 == 2) {
+    std::cout << "c";
+  }
+  if (a % 8 == 3) {
+    std::cout << "d";
+  }
+  if (a % 8 == 4) {
+    std::cout << "e";
+  }
+  if (a % 8 == 5) {
+    std::cout << "f";
+  }
+  if (a % 8 == 6) {
+    std::cout << "g";
+  }
+  if (a % 8 == 7) {
+    std::cout << "h";
+  }
 }
-void pMove(uint16_t a){
-    uint8_t from = (a & 0b0000000000111111);
-    uint8_t to = ((a >> 6) & 0b0000000000111111);
-    numToLetter(from);
-    std::cout << (int)(((63-from) / 8 + 1));
-    numToLetter(to);
-    std::cout << (int)((63-to) / 8 + 1);
+void pMove(uint16_t a) {
+  uint8_t from = (a & 0b0000000000111111);
+  uint8_t to = ((a >> 6) & 0b0000000000111111);
+  numToLetter(from);
+  std::cout << (int)(((63 - from) / 8 + 1));
+  numToLetter(to);
+  std::cout << (int)((63 - to) / 8 + 1);
 }
-//g++ src/*.cpp src/pieces/*.cpp -o main.exe -std=c++17
-uint64_t perft(Board &b, int depth, uint64_t attackers){
-    
-    
-    if (depth == 0){
-        return 1ULL;
+// g++ src/*.cpp src/pieces/*.cpp -o main.exe -std=c++17
+uint64_t perft(Board& b, int depth, uint64_t attackers) {
+
+  if (depth == 0) {
+    return 1ULL;
+  }
+  uint64_t nodes = 0;
+  uint16_t moves[218];
+
+  b.resetAttackers();
+  uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;
+  int total = b.generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
+
+  for (int i = 0; i < total; i++) {
+    b.setAttackers(pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
+    b.makeMove(moves[i]);
+    uint64_t a = b.getAttackers();
+    if (!b.isLegal(attackers)) {
+      b.unmakeMove(moves[i]);
+      continue;
     }
     uint64_t nodes = 0;
     uint16_t moves[218];
@@ -78,17 +92,17 @@ uint64_t perft(Board &b, int depth, uint64_t attackers){
         b.unmakeMove(moves[i]);
         
     }
-    return nodes;
-
+    b.unmakeMove(moves[i]);
+  }
+  return nodes;
 }
 
-
 //---
-int main () {
-    using std::chrono::high_resolution_clock;
-    using std::chrono::duration_cast;
-    using std::chrono::duration;
-    using std::chrono::milliseconds;
+int main() {
+  using std::chrono::duration;
+  using std::chrono::duration_cast;
+  using std::chrono::high_resolution_clock;
+  using std::chrono::milliseconds;
 
     Board board = Board();
     //board.makeMove(0b0000101110110110);
@@ -99,9 +113,9 @@ int main () {
     //board.makeMove(0b0000010111000101);
     //board.makeMove(0b0000101011110011);
 
-    board.printBoard();
+  board.printBoard();
 
-    auto t1 = high_resolution_clock::now();
+  auto t1 = high_resolution_clock::now();
 
     std::cout << board.color << "\n";
     board.resetAttackers();
@@ -119,10 +133,10 @@ int main () {
     auto t2 = high_resolution_clock::now();
     // /* Getting number of milliseconds as a double. */
 
-    duration<double, std::milli> ms_double = t2 - t1;
-    // //std::cout << (double)100000 / ((double)(ms_double.count())) << " Calculations per ms\n";
-    std::cout << "Nodes:" << perftNodes << " in "<< ms_double.count() << "ms\n";
-    std::cout << (double)(perftNodes) / ((double)(ms_double.count()) / 1000.0) << " NPS";
-    
-    return 0;
+  duration<double, std::milli> ms_double = t2 - t1;
+  // //std::cout << (double)100000 / ((double)(ms_double.count())) << " Calculations per ms\n";
+  std::cout << "Nodes:" << perftNodes << " in " << ms_double.count() << "ms\n";
+  std::cout << (double)(perftNodes) / ((double)(ms_double.count()) / 1000.0) << " NPS";
+
+  return 0;
 }

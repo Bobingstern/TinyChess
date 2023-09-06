@@ -29,7 +29,8 @@ void moveSet(uint16_t& move, uint8_t from, uint8_t to, bool doublePawnPush, bool
   move |= (uint16_t)flags << 12;
 }
 
-uint16_t movePack(uint8_t from, uint8_t to, bool doublePawnPush, bool enPassant, uint8_t promo, bool capture, uint8_t castle) {
+uint16_t movePack(uint8_t from, uint8_t to, bool doublePawnPush, bool enPassant, uint8_t promo, bool capture,
+                  uint8_t castle) {
   uint16_t move = (uint16_t)0b0000000000000000;
   moveSet(move, from, to, doublePawnPush, enPassant, promo, capture, castle);
   return move;
@@ -49,17 +50,17 @@ Board::Board() {
   this->whiteKing = 0x000000000000008ULL;
   this->blackKing = 0x0800000000000000ULL;
 
-  //this->blackPawns &= (0b11110111ULL << 48) ;
-  //this->whitePawns &= (0b11110111ULL << 8) ;
-  // this->whitePawns >>= 15;
-  // this->whitePawns <<= 15;
-  // this->whitePawns = 0;
+  // this->blackPawns &= (0b11110111ULL << 48) ;
+  // this->whitePawns &= (0b11110111ULL << 8) ;
+  //  this->whitePawns >>= 15;
+  //  this->whitePawns <<= 15;
+  //  this->whitePawns = 0;
 
   // this->whiteRooks <<= 24;
   // this->whiteQueens <<= 24;
   // this->whiteKing <<= 24;
   // this->whiteKnights <<= 32;
-  //this->blackQueens >>= 9;
+  // this->blackQueens >>= 9;
 
   uint64_t** bitboards = new uint64_t*[12];
   this->bitboards[0] = &this->whitePawns;
@@ -75,7 +76,7 @@ Board::Board() {
   this->bitboards[10] = &this->blackQueens;
   this->bitboards[11] = &this->blackKing;
   color = 0;
-  //delete[] moves;
+  // delete[] moves;
 }
 void Board::printBitBoard(uint64_t bb) {
   for (uint8_t y = 0; y < 8; y++) {
@@ -88,38 +89,36 @@ void Board::printBitBoard(uint64_t bb) {
   printf("\n");
 }
 
-void Board::printAllBitBoards(){
-    std::cout << "White Pawns\n";
-    printBitBoard(whitePawns);
-    std::cout << "Black Pawns\n";
-    printBitBoard(blackPawns);
+void Board::printAllBitBoards() {
+  std::cout << "White Pawns\n";
+  printBitBoard(whitePawns);
+  std::cout << "Black Pawns\n";
+  printBitBoard(blackPawns);
 
-    std::cout << "White Rooks\n";
-    printBitBoard(whiteRooks);
-    std::cout << "Black Rooks\n";
-    printBitBoard(blackRooks);
+  std::cout << "White Rooks\n";
+  printBitBoard(whiteRooks);
+  std::cout << "Black Rooks\n";
+  printBitBoard(blackRooks);
 
-    std::cout << "White Knights\n";
-    printBitBoard(whiteKnights);
-    std::cout << "Black Knights\n";
-    printBitBoard(blackKnights);
+  std::cout << "White Knights\n";
+  printBitBoard(whiteKnights);
+  std::cout << "Black Knights\n";
+  printBitBoard(blackKnights);
 
-    std::cout << "White Bishops\n";
-    printBitBoard(whiteBishops);
-    std::cout << "Black Bishops\n";
-    printBitBoard(blackBishops);
+  std::cout << "White Bishops\n";
+  printBitBoard(whiteBishops);
+  std::cout << "Black Bishops\n";
+  printBitBoard(blackBishops);
 
-    std::cout << "White Queens\n";
-    printBitBoard(whiteQueens);
-    std::cout << "Black Queens\n";
-    printBitBoard(blackQueens);
+  std::cout << "White Queens\n";
+  printBitBoard(whiteQueens);
+  std::cout << "Black Queens\n";
+  printBitBoard(blackQueens);
 
-    std::cout << "White King\n";
-    printBitBoard(whiteKing);
-    std::cout << "Black King\n";
-    printBitBoard(blackKing);
-
-    
+  std::cout << "White King\n";
+  printBitBoard(whiteKing);
+  std::cout << "Black King\n";
+  printBitBoard(blackKing);
 }
 
 void Board::printBoard() {
