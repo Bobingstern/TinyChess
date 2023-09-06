@@ -1,7 +1,7 @@
 # Build products
 *.o
 build
-cmake-build-debug
+cmake-build-*
 
 # IDEs
 .vscode
