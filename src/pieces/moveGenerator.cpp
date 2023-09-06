@@ -80,7 +80,7 @@ void Board::resetAttackers(){
     kingAttackers = 0ULL;
 }
 
-void Board::setAttackers(uint64_t &pawnAttacks, uint64_t &rookAttacks, uint64_t &knightAttacks, uint64_t &bishopAttacks, uint64_t &queenAttacks, uint64_t &kingAttacks){
+void Board::setAttackers(uint64_t pawnAttacks, uint64_t rookAttacks, uint64_t knightAttacks, uint64_t bishopAttacks, uint64_t queenAttacks, uint64_t kingAttacks){
     pawnAttackers = pawnAttacks;
     rookAttackers = rookAttacks;
     knightAttackers = knightAttacks;
@@ -106,19 +106,25 @@ bool Board::isLegal(uint64_t& attackers){
                 // printBoard();
                 return false;
             }
+            else {
+                return true;
+            }
         }
     }
     uint64_t isolated = color == 1 ? whiteKing : blackKing;
     uint8_t from = 63 - __builtin_ctzll(isolated);
     uint64_t attacks;
 
-    // if (previousMover[depth-1] == 5 || previousMover[depth-1] == 11){
-    //     // Was a king move and we can use cached vision data
-    //     if ((attackers & isolated) != 0){
-    //         return false;
-    //     }
-
-    // }
+    if ((previousMover[depth-1] == 5 || previousMover[depth-1] == 11)){
+        // Was a king move and we can use cached vision data
+        if ((attackers & isolated) != 0){
+            //std::cout << color << "\n";
+            //printBitBoard(attackers);
+            //printBoard();
+            
+            return false;
+        }
+    }
     // Rook attacks
     attacks = rookAttacks(from);
     if ((attacks & (color == 1 ? blackRooks : whiteRooks)) != 0 ||
@@ -164,7 +170,13 @@ bool Board::isLegal(uint64_t& attackers){
 }
 void Board::sliceReadd(){
     // Slice the mover ray and re add
-    if (previousMover[depth] == 3 || previousMover[depth] == 9){
+    uint64_t prevTo = 1ULL << (63-((previousMoves[depth] & 0b0000111111000000) >> 6));
+
+    // if (previousMoves[depth] == 0b0000100110101110){
+    //     printBitBoard(bishopAttackers);
+    //     printBitBoard(prevTo);
+    // }
+    if (previousMover[depth] == 3 || previousMover[depth] == 9 || (bishopAttackers & prevTo) != 0){
         bishopAttackers = 0;
         // Regenerate bishops only
         uint64_t bishopsCopy = color == 0 ? whiteBishops : blackBishops;
@@ -177,7 +189,7 @@ void Board::sliceReadd(){
         }
     }
     // Rook
-    if (previousMover[depth] == 1 || previousMover[depth] == 7){
+    if (previousMover[depth] == 1 || previousMover[depth] == 7 || (rookAttackers & prevTo) != 0){
         rookAttackers = 0;
         // Regenerate bishops only
         uint64_t rooksCopy = color == 0 ? whiteRooks : blackRooks;
@@ -190,7 +202,7 @@ void Board::sliceReadd(){
         }
     }
     // Queen
-    if (previousMover[depth] == 4 || previousMover[depth] == 10){
+    if (previousMover[depth] == 4 || previousMover[depth] == 10 || (queenAttackers & prevTo) != 0){
         queenAttackers = 0;
         // Regenerate bishops only
         uint64_t queensCopy = color == 0 ? whiteQueens : blackQueens;
@@ -203,7 +215,7 @@ void Board::sliceReadd(){
         }
     }
     // Pawn
-    if (previousMover[depth] == 0 || previousMover[depth] == 6){
+    if (previousMover[depth] == 0 || previousMover[depth] == 6 || (pawnAttackers & prevTo) != 0){
         pawnAttackers = 0;
         uint64_t pawnsCopy = color == 0 ? whitePawns : blackPawns;
         while (pawnsCopy != 0){

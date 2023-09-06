@@ -58,6 +58,11 @@ uint64_t perft(Board &b, int depth, uint64_t attackers){
         b.setAttackers(pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
         b.makeMove(moves[i]);
         uint64_t a = b.getAttackers();
+        if (moves[i] == 0b0000100110101110){
+            //b.printBitBoard(a);
+            //b.printBoard();
+            //b.printBitBoard(b.bishopAttacks(47));
+        }
         if (!b.isLegal(attackers)){ 
             b.unmakeMove(moves[i]);
             continue;
@@ -66,6 +71,7 @@ uint64_t perft(Board &b, int depth, uint64_t attackers){
         nodes += newNodes;
         if (depth == 5){
             //b.printMove(moves[i]);
+            //b.printBitBoard(attackers);
             pMove(moves[i]);
             std::cout << ": " << newNodes << "\n";
         }
@@ -85,9 +91,11 @@ int main () {
     using std::chrono::milliseconds;
 
     Board board = Board();
-    board.makeMove(0b0000101110110110);
-    // board.makeMove(0b0000010110001110);
-    //board.makeMove(0b0000101111111110);
+    //board.makeMove(0b0000101110110110);
+    //board.makeMove(0b0000010110001110);
+    // board.makeMove(0b0000101111111101);
+    // board.makeMove(0b0000010011001011);
+    //board.makeMove(0b0000100110101110);
     //board.makeMove(0b0000010111000101);
     //board.makeMove(0b0000101011110011);
 
@@ -99,7 +107,9 @@ int main () {
     board.resetAttackers();
     uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;
     uint16_t moves[218];
+    board.color = !board.color;
     int total = board.generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks); 
+    board.color = !board.color;
     uint64_t perftNodes = perft(board, 5, board.getAttackers());
     // //Testing obstruction difference
     // // uint64_t a;
