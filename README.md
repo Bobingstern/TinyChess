@@ -16,6 +16,8 @@ These steps assume Windows.
 \* You could probably use other generators that end up using `gcc`/`g++` or `clang`, but that is untested. Using MSVC
 will _not_ work.
 
+`g++ src/*.cpp src/board/*.cpp src/board/pieces/*.cpp -o main.exe` seems to work without issues on Windows
+
 ## Usage
 
 Run `main.exe`.
