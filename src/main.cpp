@@ -96,10 +96,17 @@ int main () {
     auto t1 = high_resolution_clock::now();
 
     std::cout << board.color << "\n";
+    
+    // --- this is UNREASONABLY IMPORTANT
     board.resetAttackers();
     uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;
     uint16_t moves[218];
+    board.color = !board.color;
     int total = board.generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks); 
+    //board.printBitBoard(board.getAttackers());
+    board.color = !board.color;
+    // ----------
+
     uint64_t perftNodes = perft(board, 5, board.getAttackers());
     // //Testing obstruction difference
     // // uint64_t a;

@@ -63,6 +63,7 @@ class Board {
     uint64_t bishopAttacks(uint8_t from);
     uint64_t knightAttacks(uint64_t isolated, uint8_t from);
     uint64_t kingAttacks(uint64_t isolated, uint8_t from);
+    int hammingWeight(uint64_t a);
 
     uint64_t pawnAttackers;
     uint64_t rookAttackers;
@@ -83,6 +84,15 @@ class Board {
 
     bool flagBlackQueensideCastle = 1;
     int bqscDepth = -1;
+
+    //Magic not bb
+    uint64_t m1  = 0x5555555555555555; //binary: 0101...
+    uint64_t m2  = 0x3333333333333333; //binary: 00110011..
+    uint64_t m4  = 0x0f0f0f0f0f0f0f0f; //binary:  4 zeros,  4 ones ...
+    uint64_t m8  = 0x00ff00ff00ff00ff; //binary:  8 zeros,  8 ones ...
+    uint64_t m16 = 0x0000ffff0000ffff; //binary: 16 zeros, 16 ones ...
+    uint64_t m32 = 0x00000000ffffffff; //binary: 32 zeros, 32 ones
+    uint64_t h01 = 0x0101010101010101;
 
 
     void printMove(uint16_t a);

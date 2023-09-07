@@ -109,8 +109,11 @@ bool Board::isLegal(uint64_t& attackers){
         }
     }
     uint64_t isolated = color == 1 ? whiteKing : blackKing;
-    uint8_t from = 63 - __builtin_ctzll(isolated);
+    int from = 63 - __builtin_ctzll(isolated);
     uint64_t attacks;
+    uint64_t prevTo = 1ULL << (63-( (previousMoves[depth-1] & 0b0000111111000000) >> 6 ));
+    uint64_t prevFrom = 1ULL << (63-((previousMoves[depth-1] & 0b0000000000111111)));
+    int prevToNum = (((previousMoves[depth-1] & 0b0000111111000000) >> 6));
 
     if (previousMover[depth-1] == 5 || previousMover[depth-1] == 11){
         // Was a king move and we can use cached vision data
@@ -119,12 +122,21 @@ bool Board::isLegal(uint64_t& attackers){
         }
 
     }
-    // Rook attacks
+
+   
+
+    //First check for DIRECT king checks
+    // Rook attacks    
+    
     attacks = rookAttacks(from);
     if ((attacks & (color == 1 ? blackRooks : whiteRooks)) != 0 ||
         (attacks & (color == 1 ? blackQueens : whiteQueens)) ){
+        //std::cout << "From:" << from << " prevToNum:" << prevToNum << "\n";
+        
+        //printBoard();
         return false;
     }
+    
     // Bishops
     attacks = bishopAttacks(from);
     if ((attacks & (color == 1 ? blackBishops : whiteBishops)) != 0 ||
