@@ -1,5 +1,3 @@
-// https://analog-hors.github.io/webperft/
-
 #include "../board.h"
 
 int Board::generateMoves(uint16_t* moves, uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t& knightAttacks,
