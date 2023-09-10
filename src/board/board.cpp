@@ -59,7 +59,8 @@ Board::Board() {
   // this->whiteKnights <<= 32;
   // this->blackQueens >>= 9;
 
-  uint64_t** bitboards = new uint64_t*[12];
+  // uint64_t** bitboards = new uint64_t*[12];
+  this->bitboards = new uint64_t*[12];
   this->bitboards[BB_WHITE_PAWNS] = &this->whitePawns;
   this->bitboards[BB_WHITE_ROOKS] = &this->whiteRooks;
   this->bitboards[BB_WHITE_KNIGHTS] = &this->whiteKnights;
@@ -75,6 +76,11 @@ Board::Board() {
 
   this->color = WHITE;
 }
+
+Board::~Board() {
+  delete[] this->bitboards;
+}
+
 void Board::printBitBoard(uint64_t bb) {
   for (uint8_t y = 0; y < 8; y++) {
     for (uint8_t x = 0; x < 8; x++) {

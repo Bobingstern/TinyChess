@@ -15,5 +15,5 @@ class Engine {
     Board* board = nullptr;
 
   private:
-    uint64_t perft(int depth, uint64_t attackers);
+    uint64_t perft(int depth, uint64_t attackers, int originalDepth);
 };

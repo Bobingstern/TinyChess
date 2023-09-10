@@ -42,6 +42,7 @@ uint16_t movePack(uint8_t from, uint8_t to, bool doublePawnPush, bool enPassant,
 class Board {
   public:
     Board();
+    virtual ~Board();
 
     void printBoard();
     void printBitBoard(uint64_t bb);
@@ -109,7 +110,7 @@ class Board {
     uint64_t m32 = 0x00000000ffffffff; // binary: 32 zeros, 32 ones
     uint64_t h01 = 0x0101010101010101;
 
-    void printMove(uint16_t a);
+    void printMove(uint16_t a, bool bin = false);
 
     uint16_t pawnMoves(bool color, uint16_t* moves, int i);
     uint16_t rookMoves(bool color, uint16_t* moves, int i);
@@ -140,5 +141,5 @@ class Board {
     uint64_t blackQueens;
     uint64_t whiteKing;
     uint64_t blackKing;
-    uint64_t** bitboards = new uint64_t*[12];
+    uint64_t** bitboards = nullptr;
 };

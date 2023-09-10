@@ -22,13 +22,50 @@ int Board::hammingWeight(uint64_t x) {
   return (x * h01) >> 56;         // returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24)
 }
 
-void Board::printMove(uint16_t a) {
-  std::bitset<16> m = a;
-  // std::bitset<4> flag = a >> 12;
-  std::cout << "Binary Move:" << m << "\n";
-  std::cout << "From:" << moveReadFromIndex(a) << "\n";
-  std::cout << "To:" << (moveReadToIndex(a) >> 6) << "\n";
-  std::cout << "Flag:" << moveReadPromotion(a) << "\n";
+void printNumToLetter(uint8_t a) {
+  if (a % 8 == 0) {
+    std::cout << "a";
+  } else if (a % 8 == 1) {
+    std::cout << "b";
+  } else if (a % 8 == 2) {
+    std::cout << "c";
+  } else if (a % 8 == 3) {
+    std::cout << "d";
+  } else if (a % 8 == 4) {
+    std::cout << "e";
+  } else if (a % 8 == 5) {
+    std::cout << "f";
+  } else if (a % 8 == 6) {
+    std::cout << "g";
+  } else if (a % 8 == 7) {
+    std::cout << "h";
+  }
+}
+void pMove(uint16_t a) {
+  uint8_t from = (a & 0b0000000000111111);
+  uint8_t to = ((a >> 6) & 0b0000000000111111);
+  printNumToLetter(from);
+  std::cout << (int)(((63 - from) / 8 + 1));
+  printNumToLetter(to);
+  std::cout << (int)((63 - to) / 8 + 1);
+}
+
+void Board::printMove(uint16_t a, bool bin) {
+  if (bin) {
+    std::bitset<16> m = a;
+    // std::bitset<4> flag = a >> 12;
+    std::cout << "Binary Move:" << m << "\n";
+    std::cout << "From:" << moveReadFromIndex(a) << "\n";
+    std::cout << "To:" << (moveReadToIndex(a) >> 6) << "\n";
+    std::cout << "Flag:" << moveReadPromotion(a) << "\n";
+  } else {
+    uint8_t from = (a & 0b0000000000111111);
+    uint8_t to = ((a >> 6) & 0b0000000000111111);
+    printNumToLetter(from);
+    std::cout << (int)(((63 - from) / 8 + 1));
+    printNumToLetter(to);
+    std::cout << (int)((63 - to) / 8 + 1);
+  }
 }
 
 uint64_t Board::bitReverse(uint64_t b) {
