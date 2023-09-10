@@ -45,12 +45,28 @@ class Board {
     virtual ~Board();
 
     void printBoard();
-    void printBitBoard(uint64_t bb);
-    void printAllBitBoards();
 
     // Move generator
     void makeMove(uint16_t a);
     void unmakeMove(uint16_t a);
+
+    bool color; // 0 == White
+
+    int generateMoves(uint16_t* moves, uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t& knightAttacks,
+                      uint64_t& bishopAttacks, uint64_t& queenAttacks, uint64_t& kingAttacks);
+    bool isLegal(uint64_t& attackers);
+    int movesFromIndex(int i, uint16_t* moves);
+    void resetAttackers();
+    void setAttackers(uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t& knightAttacks, uint64_t& bishopAttacks,
+                      uint64_t& queenAttacks, uint64_t& kingAttacks);
+    uint64_t getAttackers();
+
+    void printMove(uint16_t a, bool bin = false);
+
+  private:
+    void printBitBoard(uint64_t bb);
+
+    void printAllBitBoards();
     void sliceReAdd();
     // History
     int captures[32];
@@ -58,9 +74,8 @@ class Board {
     int depth = 0;
     uint16_t previousMoves[12];
     uint16_t previousMover[12];
-    int caps = 0;
 
-    bool color; // 0 == White
+    int caps = 0;
     // Utilities
     uint64_t whiteOccupation();
     uint64_t blackOccupation();
@@ -102,15 +117,13 @@ class Board {
     int bqscDepth = -1;
 
     // Magic not bb
-    uint64_t m1 = 0x5555555555555555;  // binary: 0101...
-    uint64_t m2 = 0x3333333333333333;  // binary: 00110011..
-    uint64_t m4 = 0x0f0f0f0f0f0f0f0f;  // binary:  4 zeros,  4 ones ...
-    uint64_t m8 = 0x00ff00ff00ff00ff;  // binary:  8 zeros,  8 ones ...
-    uint64_t m16 = 0x0000ffff0000ffff; // binary: 16 zeros, 16 ones ...
-    uint64_t m32 = 0x00000000ffffffff; // binary: 32 zeros, 32 ones
-    uint64_t h01 = 0x0101010101010101;
-
-    void printMove(uint16_t a, bool bin = false);
+    const uint64_t m1 = 0x5555555555555555;  // binary: 0101...
+    const uint64_t m2 = 0x3333333333333333;  // binary: 00110011..
+    const uint64_t m4 = 0x0f0f0f0f0f0f0f0f;  // binary:  4 zeros,  4 ones ...
+    const uint64_t m8 = 0x00ff00ff00ff00ff;  // binary:  8 zeros,  8 ones ...
+    const uint64_t m16 = 0x0000ffff0000ffff; // binary: 16 zeros, 16 ones ...
+    const uint64_t m32 = 0x00000000ffffffff; // binary: 32 zeros, 32 ones
+    const uint64_t h01 = 0x0101010101010101;
 
     uint16_t pawnMoves(bool color, uint16_t* moves, int i);
     uint16_t rookMoves(bool color, uint16_t* moves, int i);
@@ -119,15 +132,7 @@ class Board {
     uint16_t knightMoves(bool color, uint16_t* moves, int i);
     uint16_t kingMoves(bool color, uint16_t* moves, int i);
 
-    int generateMoves(uint16_t* moves, uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t& knightAttacks,
-                      uint64_t& bishopAttacks, uint64_t& queenAttacks, uint64_t& kingAttacks);
-    bool isLegal(uint64_t& attackers);
     // bool isCheck(uint64_t& attackers);
-    int movesFromIndex(int i, uint16_t* moves);
-    void resetAttackers();
-    void setAttackers(uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t& knightAttacks, uint64_t& bishopAttacks,
-                      uint64_t& queenAttacks, uint64_t& kingAttacks);
-    uint64_t getAttackers();
 
     uint64_t whitePawns;
     uint64_t blackPawns;
