@@ -75,8 +75,8 @@ Board::Board() {
   this->bitboards[BB_BLACK_BISHOPS] = &this->blackBishops;
   this->bitboards[BB_BLACK_QUEENS] = &this->blackQueens;
   this->bitboards[BB_BLACK_KING] = &this->blackKing;
-  color = 0;
-  // delete[] moves;
+
+  this->color = WHITE;
 }
 void Board::printBitBoard(uint64_t bb) {
   for (uint8_t y = 0; y < 8; y++) {

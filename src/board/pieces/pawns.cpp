@@ -36,9 +36,7 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i) {
       if (((color == WHITE ? blackOccupation() : whiteOccupation()) & isolatedAttack) != 0) {
         if (color == WHITE && (to >= A8 && to <= H8)){
           // Promo
-          //printBoard();
           moves[i] = movePack(from, to, false, false, 1, true, 0);
-          //printMove(moves[i]);
           i++;
           moves[i] = movePack(from, to, false, false, 2, true, 0);
           i++;
@@ -66,32 +64,17 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i) {
         if (depth > 0 && previousMover[depth - 1] == 6) {
           if ((from >= 24 && from < 32) && ((previousMoves[depth - 1] & 0b1111000000000000) >> 12) == 1 &&
               ((previousMoves[depth - 1] & 0b0000111111000000) >> 6) == to + 8) {
-            // std::cout << from << " " << to <<"\n";
-            // printBitBoard(whitePawns);
-            // printBitBoard(blackPawns);
-            // printBoard();
-            // std::cout << "\n";
             moves[i] = movePack(from, to, false, true, false, false, 0);
             i++;
-            // printMove(moves[i]);
           }
         }
       } else {
-        // if (from >= 32){
-        //     std::cout << depth << "\n";
-        // }
-
         if (depth > 0 && previousMover[depth - 1] == 0) {
 
           if ((from >= 32 && from < 40) && ((previousMoves[depth - 1] & 0b1111000000000000) >> 12) == 1 &&
               ((previousMoves[depth - 1] & 0b0000111111000000) >> 6) == to - 8) {
-
-            // printBitBoard(whitePawns);
-            // printBitBoard(blackPawns);
             moves[i] = movePack(from, to, false, true, false, false, 0);
             i++;
-
-            // printMove(moves[i]);
           }
         }
       }
@@ -119,14 +102,10 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i) {
     }
 
     // Push the moves
-    // pawnAttackers |= movements;
     while (movements != 0) {
       uint64_t isolatedPush = movements & ((~movements) + 1);
       int to = 63 - __builtin_ctzll(isolatedPush);
       if (color == 0) {
-        // if (to - from > 8){
-        //     std::cout << "Flag\n";
-        // }
         if ((to >= 0 && to <= 7)){
           moves[i] = movePack(from, to, false, false, 1, false, 0);
           i++;
@@ -139,7 +118,6 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i) {
         else{
           moves[i] = movePack(from, to, from - to > 8, false, false, false, 0);
         }
-        //i++;
       } else {
         if ((to >= 56 && to <= 63)){
           moves[i] = movePack(from, to, false, false, 1, false, 0);

@@ -7,13 +7,11 @@
 #include <vector>
 
 int Board::queenMoves(bool color, uint16_t* moves, int i) {
-
   uint64_t queensCopy = color == 0 ? whiteQueens : blackQueens;
   while (queensCopy != 0) {
     uint64_t isolatedQueen = queensCopy & ((~queensCopy) + 1);
     uint8_t from = 63 - __builtin_ctzll(isolatedQueen);
     uint64_t attacks = rookAttacks(from) | bishopAttacks(from);
-    // printBitBoard(isolatedQueen);
     queenAttackers |= attacks;
     while (attacks != 0) {
       uint64_t isolatedAttack = attacks & ((~attacks) + 1);

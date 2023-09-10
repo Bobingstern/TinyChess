@@ -12,21 +12,16 @@
 int Board::generateMoves(uint16_t* moves, uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t& knightAttacks,
                          uint64_t& bishopAttacks, uint64_t& queenAttacks, uint64_t& kingAttacks) {
   int i = 0;
-  // uint64_t opposingAttacks = pawnAttackers | rookAttackers | knightAttackers | bishopAttackers | queenAttackers |
-  // kingAttackers;
-  // std::cout << color << "\n";
   if (color == 0) {
     // Checking for checks in castling squares
     if (flagWhiteKingsideCastle) {
       if ((combinedOccupation() & 6ULL) == 0 && (whiteRooks & 1ULL) != 0) {
-        // printBoard();
         moves[i] = 0b0010111110111100;
         i++;
       }
     }
     if (flagWhiteQueensideCastle) {
       if ((combinedOccupation() & 112ULL) == 0 && (whiteRooks & 128ULL) != 0) {
-        // printBoard();
         moves[i] = 0b0011000010001000;
         i++;
       }
@@ -36,24 +31,20 @@ int Board::generateMoves(uint16_t* moves, uint64_t& pawnAttacks, uint64_t& rookA
     // Checking for checks in castling squares
     if (flagBlackKingsideCastle) {
       if ((combinedOccupation() & (6ULL << 56)) == 0 && (blackRooks & (1ULL << 56)) != 0) {
-        // printBoard();
         moves[i] = 0b0010000110000100;
         i++;
       }
     }
     if (flagBlackQueensideCastle) {
       if ((combinedOccupation() & (112ULL << 56)) == 0 && (blackRooks & (128ULL << 56)) != 0) {
-        // printBoard();
         moves[i] = 0b0011000010000100;
         i++;
       }
     }
   }
 
-  // printMove(moves[0]);
   resetAttackers();
   i = pawnMoves(color, moves, i);
-  // std::cout << i << "\n";
   i = rookMoves(color, moves, i);
   i = knightMoves(color, moves, i);
   i = bishopMoves(color, moves, i);
@@ -67,8 +58,6 @@ int Board::generateMoves(uint16_t* moves, uint64_t& pawnAttacks, uint64_t& rookA
   bishopAttacks = bishopAttackers;
   queenAttacks = queenAttackers;
   kingAttacks = kingAttackers;
-  // if (queenAttackers != 0)
-  //     printBitBoard(queenAttackers);
   return i;
 }
 
@@ -128,7 +117,6 @@ bool Board::isLegal(uint64_t& attackers) {
   if (flag == 0b0011) {
     if (color == 1) {
       if ((120ULL & attackers) != 0) {
-        // printBoard();
         return false;
       }
     }
@@ -146,8 +134,6 @@ bool Board::isLegal(uint64_t& attackers) {
       }
     }
     if (color == 0) {
-      // printBoard();
-      // printBitBoard(attackers);
       if (((14ULL << 56) & attackers) != 0) {
         return false;
       }
@@ -172,9 +158,6 @@ bool Board::isLegal(uint64_t& attackers) {
 
   attacks = rookAttacks(from);
   if ((attacks & (color == 1 ? blackRooks : whiteRooks)) != 0 || (attacks & (color == 1 ? blackQueens : whiteQueens))) {
-    // std::cout << "From:" << from << " prevToNum:" << prevToNum << "\n";
-
-    // printBoard();
     return false;
   }
 
@@ -205,23 +188,12 @@ bool Board::isLegal(uint64_t& attackers) {
   if ((attacks & (color == 1 ? blackPawns : whitePawns)) != 0) {
     return false;
   }
-  // uint16_t flag = (previousMoves[depth-1] & 0b1111000000000000) >> 12;
-  // bool isCapture = (flag == 0b0100 || flag >= 0b1100);
-  // bool isEP = (flag == 0b0101);
-  // if (isCapture || isEP){
-  //     caps++;
-  //     std::cout << caps << "\n";
-  // }
   return true;
 }
 void Board::sliceReadd() {
   uint64_t prevTo = 1ULL << (63 - ((previousMoves[depth] & 0b0000111111000000) >> 6));
   uint16_t flag = (previousMoves[depth] >> 12);
 
-  // if (previousMoves[depth] == 0b0000100110101110){
-  //     printBitBoard(bishopAttackers);
-  //     printBitBoard(prevTo);
-  // }
   if (previousMover[depth] == 3 || previousMover[depth] == 9 || (bishopAttackers & prevTo) != 0) {
     bishopAttackers = 0;
     // Regenerate bishops only
@@ -295,7 +267,6 @@ void Board::sliceReadd() {
       uint64_t isolatedKing = kingsCopy & ((~kingsCopy) + 1);
       uint8_t from = 63 - __builtin_ctzll(isolatedKing);
       uint64_t attacks = kingAttacks(isolatedKing, from);
-      // printBitBoard(kingAttacks(isolatedKing, from));
       kingAttackers |= attacks;
       kingsCopy &= ~isolatedKing;
     }
@@ -308,7 +279,6 @@ void Board::sliceReadd() {
       uint64_t isolatedKnight = knightsCopy & ((~knightsCopy) + 1);
       uint8_t from = 63 - __builtin_ctzll(isolatedKnight);
       uint64_t attacks = knightAttacks(isolatedKnight, from);
-      // printBitBoard(attacks);
       knightAttackers |= attacks;
       knightsCopy &= ~isolatedKnight;
     }
@@ -316,7 +286,6 @@ void Board::sliceReadd() {
 }
 
 void Board::makeMove(uint16_t a) {
-  // printMove(a);
   previousMoves[depth] = a;
   uint8_t from = (a & 0b0000000000111111);
 
@@ -361,7 +330,6 @@ void Board::makeMove(uint16_t a) {
       previousMover[depth] = 5;
     }
     if (color == 1) {
-      // printBoard();
       blackKing >>= 2;
       blackRooks &= (~(1ULL << 56));
       blackRooks |= (blackKing << 1);
@@ -378,21 +346,15 @@ void Board::makeMove(uint16_t a) {
 
   // Move piece to position first
   // First iterate over all 12 piece bitboards and select it based on from and to
-  // std::cout << isEP <<" Yes enp\n";
   if (isEP) {
-    // epN ++ ;
-    // std::cout << epN << "\n";
     if ((*bitboards[color == 0 ? 6 : 0] & (color == 0 ? (toBitboard >> 8) : toBitboard << 8)) != 0) {
       *bitboards[color == 0 ? 6 : 0] &= (~(color == 0 ? (toBitboard >> 8) : toBitboard << 8));
       captures[currentCapture] = color == 0 ? 6 : 0;
-      // printBitBoard(whitePawns);
-      // printBitBoard(blackPawns);
       currentCapture++;
     }
   }
   for (int i = 0; i < 12; i++) {
     // This means a piece is present at 'from'
-    // printBitBoard(fromBitboard);
     // Check if it's a capture
     if (isCapture) {
       // Remove the piece at 'to' square
@@ -400,7 +362,6 @@ void Board::makeMove(uint16_t a) {
       if ((*bitboards[i] & toBitboard) != 0) {
         *bitboards[i] &= (~toBitboard);
         captures[currentCapture] = i;
-        // std::cout << captures[currentCapture] <<  "\n";
         currentCapture++;
       }
     }
@@ -429,7 +390,6 @@ void Board::makeMove(uint16_t a) {
       *bitboards[BB_WHITE_BISHOPS] |= toBitboard;
     if (color == 1)
       *bitboards[BB_BLACK_BISHOPS] |= toBitboard;
-    //printBoard();
   }
   // Rook Promo
   if (flag == 0b1110 || flag == 0b1010){
@@ -467,9 +427,6 @@ void Board::makeMove(uint16_t a) {
     }
   }
   if (color == 1) {
-    // if (((blackKing & (8ULL << 56)) == 0 || (blackRooks & (1ULL << 56)) == 0)){
-    //     std::cout << flagBlackKingsideCastle << "\n";
-    // }
     if (((blackKing & (8ULL << 56)) == 0 || (blackRooks & (1ULL << 56)) == 0) && flagBlackKingsideCastle == 1) {
       // Trip the bit
       bkscDepth = depth;
@@ -484,10 +441,7 @@ void Board::makeMove(uint16_t a) {
   }
 
   sliceReadd();
-
-  // std::cout <<  color <<" ";
   color = !color;
-  // std::cout <<  color <<"\n";
   depth++;
 }
 
@@ -573,8 +527,6 @@ void Board::unmakeMove(uint16_t a) {
 
   // Knight promo
   if (flag == 0b1100 || flag == 0b1000){
-    // Remove blub
-    
     if (color == BLACK){
       *bitboards[BB_WHITE_KNIGHTS] &= (~toBitboard);
       *bitboards[previousMover[depth]] |= fromBitboard;
@@ -586,7 +538,6 @@ void Board::unmakeMove(uint16_t a) {
   }
   // Bishop promo
   if (flag == 0b1101 || flag == 0b1001){
-    // Remove blub
     if (color == BLACK){
       *bitboards[BB_WHITE_BISHOPS] &= (~toBitboard);
       *bitboards[previousMover[depth]] |= fromBitboard;
@@ -598,7 +549,6 @@ void Board::unmakeMove(uint16_t a) {
   }
   // Rook Promo
   if (flag == 0b1110 || flag == 0b1010){
-    // Remove blub
     if (color == BLACK){
       *bitboards[BB_WHITE_ROOKS] &= (~toBitboard);
       *bitboards[previousMover[depth]] |= fromBitboard;
@@ -610,14 +560,9 @@ void Board::unmakeMove(uint16_t a) {
   }
   // Queen Promo
   if (flag == 0b1111 || flag == 0b1011){
-    // Remove blub
-    
-    //printBitBoard(toBitboard);
     if (color == BLACK){
       *bitboards[BB_WHITE_QUEENS] &= (~toBitboard);
       *bitboards[previousMover[depth]] |= fromBitboard;
-      //printBoard();
-      
     }
     if (color == WHITE){
       *bitboards[BB_BLACK_QUEENS] &= (~toBitboard);
@@ -625,8 +570,6 @@ void Board::unmakeMove(uint16_t a) {
     }
   }
 
-
-  //------
   if ((*bitboards[previousMover[depth]] & toBitboard) != 0) {
     // Remove the piece abd replace it to its new position
     *bitboards[previousMover[depth]] &= (~toBitboard);
@@ -639,17 +582,10 @@ void Board::unmakeMove(uint16_t a) {
     currentCapture--;
   }
   if (isEP) {
-    // std::cout << "EP\n";
     *bitboards[color == 1 ? 6 : 0] |= ((color == 1 ? (toBitboard >> 8) : toBitboard << 8));
     captures[currentCapture] = -1;
-    // printBitBoard(whitePawns);
-    // printBitBoard(blackPawns);
     currentCapture--;
   }
-  // if (flag == 0b1101){
-  //   std::cout << captures[currentCapture - 1] << "\n";
-  //   printBoard();
-  // }
   sliceReadd();
   previousMover[depth] = -1;
   color = !color;
