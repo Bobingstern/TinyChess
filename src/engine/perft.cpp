@@ -9,9 +9,9 @@ uint64_t Engine::runPerft(int depth) {
   uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;
   uint16_t moves[218];
   board->color = !board->color;
-  //  int total =
-  //      board->generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks,
-  //      kingAttacks);
+   int total =
+       board->generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks,
+       kingAttacks);
   board->color = !board->color;
   return perft(depth, board->getAttackers(), depth);
 }
