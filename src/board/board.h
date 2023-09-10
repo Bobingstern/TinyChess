@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <vector>
 #include <stdlib.h>
+#include "squares.h"
 
 
 #define bitRead(value, bit) (((value) >> (63 - bit)) & 0x01)
@@ -10,14 +11,30 @@
 #define bitClear(value, bit) ((value) &= ~(1UL << (63 - bit)))
 #define bitWrite(value, bit, bitvalue) ((bitvalue) ? bitSet(value, 63 - bit) : bitClear(value, 63 - bit))
 
+#define WHITE 0
+#define BLACK 1
+
+#define BB_WHITE_PAWNS 0
+#define BB_WHITE_ROOKS 1
+#define BB_WHITE_KNIGHTS 2
+#define BB_WHITE_BISHOPS 3
+#define BB_WHITE_QUEENS 4
+#define BB_WHITE_KING 5
+#define BB_BLACK_PAWNS 6
+#define BB_BLACK_ROOKS 7
+#define BB_BLACK_KNIGHTS 8
+#define BB_BLACK_BISHOPS 9
+#define BB_BLACK_QUEENS 10
+#define BB_BLACK_KING 11
+
 // 00 00 000000 000000
 // 2 bits unused
 // 2 bits r for promo
 // 6 r to index
 // 6 r from index
-#define moveReadFromIndex(move) (move & 0b111111)
-#define moveReadToIndex(move) (move & 0b111111000000)
-#define moveReadPromotion(move) (move & 0b11000000000000)
+#define moveReadFromIndex(move) (move & 0b0000000000111111)
+#define moveReadToIndex(move)   (move & 0b0000111111000000)
+#define moveReadPromotion(move) (move & 0b0011000000000000)
 void moveSet(uint16_t& move, uint8_t from, uint8_t to, bool doublePawnPush, bool enPassant, uint8_t promo, bool capture,
              uint8_t castle);
 uint16_t movePack(uint8_t from, uint8_t to, bool doublePawnPush, bool enPassant, uint8_t promo, bool capture,

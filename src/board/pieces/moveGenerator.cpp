@@ -1,3 +1,5 @@
+// https://analog-hors.github.io/webperft/
+
 #include "../board.h"
 #include <bitset>
 #include <cmath>
@@ -410,6 +412,45 @@ void Board::makeMove(uint16_t a) {
       previousMover[depth] = i;
     }
   }
+  // Knight promo
+  if (flag == 0b1100 || flag == 0b1000){
+    // Remove blub
+    *bitboards[previousMover[depth]] &= (~toBitboard);
+    if (color == 0)
+      *bitboards[BB_WHITE_KNIGHTS] |= toBitboard;
+    if (color == 1)
+      *bitboards[BB_BLACK_KNIGHTS] |= toBitboard;
+  }
+  // Bishop promo
+  if (flag == 0b1101 || flag == 0b1001){
+    // Remove blub
+    *bitboards[previousMover[depth]] &= (~toBitboard);
+    if (color == 0)
+      *bitboards[BB_WHITE_BISHOPS] |= toBitboard;
+    if (color == 1)
+      *bitboards[BB_BLACK_BISHOPS] |= toBitboard;
+    //printBoard();
+  }
+  // Rook Promo
+  if (flag == 0b1110 || flag == 0b1010){
+    // Remove blub
+    *bitboards[previousMover[depth]] &= (~toBitboard);
+    if (color == 0)
+      *bitboards[BB_WHITE_ROOKS] |= toBitboard;
+    if (color == 1)
+      *bitboards[BB_BLACK_ROOKS] |= toBitboard;
+  }
+  // Queen Promo
+  if (flag == 0b1111 || flag == 0b1011){
+    // Remove blub
+    *bitboards[previousMover[depth]] &= (~toBitboard);
+    if (color == 0)
+      *bitboards[BB_WHITE_QUEENS] |= toBitboard;
+    if (color == 1)
+      *bitboards[BB_BLACK_QUEENS] |= toBitboard;
+    
+  }
+  
   if (color == 0) {
     // Right white rook has moved/been captured
     // White King moved
@@ -529,6 +570,63 @@ void Board::unmakeMove(uint16_t a) {
   // Move piece to position first
   // First iterate over all 12 piece bitboards and select it based on from and to
   // Remove the piece and move back
+
+  // Knight promo
+  if (flag == 0b1100 || flag == 0b1000){
+    // Remove blub
+    
+    if (color == BLACK){
+      *bitboards[BB_WHITE_KNIGHTS] &= (~toBitboard);
+      *bitboards[previousMover[depth]] |= fromBitboard;
+    }
+    if (color == WHITE){
+      *bitboards[BB_BLACK_KNIGHTS] &= (~toBitboard);
+      *bitboards[previousMover[depth]] |= fromBitboard;
+    }
+  }
+  // Bishop promo
+  if (flag == 0b1101 || flag == 0b1001){
+    // Remove blub
+    if (color == BLACK){
+      *bitboards[BB_WHITE_BISHOPS] &= (~toBitboard);
+      *bitboards[previousMover[depth]] |= fromBitboard;
+    }
+    if (color == WHITE){
+      *bitboards[BB_BLACK_BISHOPS] &= (~toBitboard);
+      *bitboards[previousMover[depth]] |= fromBitboard;
+    }
+  }
+  // Rook Promo
+  if (flag == 0b1110 || flag == 0b1010){
+    // Remove blub
+    if (color == BLACK){
+      *bitboards[BB_WHITE_ROOKS] &= (~toBitboard);
+      *bitboards[previousMover[depth]] |= fromBitboard;
+    }
+    if (color == WHITE) {
+      *bitboards[BB_BLACK_ROOKS] &= (~toBitboard);
+      *bitboards[previousMover[depth]] |= fromBitboard;
+    }
+  }
+  // Queen Promo
+  if (flag == 0b1111 || flag == 0b1011){
+    // Remove blub
+    
+    //printBitBoard(toBitboard);
+    if (color == BLACK){
+      *bitboards[BB_WHITE_QUEENS] &= (~toBitboard);
+      *bitboards[previousMover[depth]] |= fromBitboard;
+      //printBoard();
+      
+    }
+    if (color == WHITE){
+      *bitboards[BB_BLACK_QUEENS] &= (~toBitboard);
+      *bitboards[previousMover[depth]] |= fromBitboard;
+    }
+  }
+
+
+  //------
   if ((*bitboards[previousMover[depth]] & toBitboard) != 0) {
     // Remove the piece abd replace it to its new position
     *bitboards[previousMover[depth]] &= (~toBitboard);
@@ -548,6 +646,10 @@ void Board::unmakeMove(uint16_t a) {
     // printBitBoard(blackPawns);
     currentCapture--;
   }
+  // if (flag == 0b1101){
+  //   std::cout << captures[currentCapture - 1] << "\n";
+  //   printBoard();
+  // }
   sliceReadd();
   previousMover[depth] = -1;
   color = !color;

@@ -63,18 +63,18 @@ Board::Board() {
   // this->blackQueens >>= 9;
 
   uint64_t** bitboards = new uint64_t*[12];
-  this->bitboards[0] = &this->whitePawns;
-  this->bitboards[1] = &this->whiteRooks;
-  this->bitboards[2] = &this->whiteKnights;
-  this->bitboards[3] = &this->whiteBishops;
-  this->bitboards[4] = &this->whiteQueens;
-  this->bitboards[5] = &this->whiteKing;
-  this->bitboards[6] = &this->blackPawns;
-  this->bitboards[7] = &this->blackRooks;
-  this->bitboards[8] = &this->blackKnights;
-  this->bitboards[9] = &this->blackBishops;
-  this->bitboards[10] = &this->blackQueens;
-  this->bitboards[11] = &this->blackKing;
+  this->bitboards[BB_WHITE_PAWNS] = &this->whitePawns;
+  this->bitboards[BB_WHITE_ROOKS] = &this->whiteRooks;
+  this->bitboards[BB_WHITE_KNIGHTS] = &this->whiteKnights;
+  this->bitboards[BB_WHITE_BISHOPS] = &this->whiteBishops;
+  this->bitboards[BB_WHITE_QUEENS] = &this->whiteQueens;
+  this->bitboards[BB_WHITE_KING] = &this->whiteKing;
+  this->bitboards[BB_BLACK_PAWNS] = &this->blackPawns;
+  this->bitboards[BB_BLACK_ROOKS] = &this->blackRooks;
+  this->bitboards[BB_BLACK_KNIGHTS] = &this->blackKnights;
+  this->bitboards[BB_BLACK_BISHOPS] = &this->blackBishops;
+  this->bitboards[BB_BLACK_QUEENS] = &this->blackQueens;
+  this->bitboards[BB_BLACK_KING] = &this->blackKing;
   color = 0;
   // delete[] moves;
 }

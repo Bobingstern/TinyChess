@@ -33,10 +33,33 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i) {
     while (movements != 0) {
       uint64_t isolatedAttack = movements & ((~movements) + 1);
       int to = 63 - __builtin_ctzll(isolatedAttack);
-      if (((color == 0 ? blackOccupation() : whiteOccupation()) & isolatedAttack) != 0) {
-
-        moves[i] = movePack(from, to, false, false, false, true, 0);
+      if (((color == WHITE ? blackOccupation() : whiteOccupation()) & isolatedAttack) != 0) {
+        if (color == WHITE && (to >= A8 && to <= H8)){
+          // Promo
+          //printBoard();
+          moves[i] = movePack(from, to, false, false, 1, true, 0);
+          //printMove(moves[i]);
+          i++;
+          moves[i] = movePack(from, to, false, false, 2, true, 0);
+          i++;
+          moves[i] = movePack(from, to, false, false, 3, true, 0);
+          i++;
+          moves[i] = movePack(from, to, false, false, 4, true, 0);
+        }
+        else if (color == BLACK && (to >= A1 && to <= H1)){ 
+          moves[i] = movePack(from, to, false, false, 1, true, 0);
+          i++;
+          moves[i] = movePack(from, to, false, false, 2, true, 0);
+          i++;
+          moves[i] = movePack(from, to, false, false, 3, true, 0);
+          i++;
+          moves[i] = movePack(from, to, false, false, 4, true, 0);
+        } 
+        else{
+          moves[i] = movePack(from, to, false, false, 0, true, 0);
+        }
         i++;
+        
       }
       // En Passant moves
       if (color == 0) {
@@ -104,9 +127,32 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i) {
         // if (to - from > 8){
         //     std::cout << "Flag\n";
         // }
-        moves[i] = movePack(from, to, from - to > 8, false, false, false, 0);
+        if ((to >= 0 && to <= 7)){
+          moves[i] = movePack(from, to, false, false, 1, false, 0);
+          i++;
+          moves[i] = movePack(from, to, false, false, 2, false, 0);
+          i++;
+          moves[i] = movePack(from, to, false, false, 3, false, 0);
+          i++;
+          moves[i] = movePack(from, to, false, false, 4, false, 0);
+        }
+        else{
+          moves[i] = movePack(from, to, from - to > 8, false, false, false, 0);
+        }
+        //i++;
       } else {
-        moves[i] = movePack(from, to, to - from > 8, false, false, false, 0);
+        if ((to >= 56 && to <= 63)){
+          moves[i] = movePack(from, to, false, false, 1, false, 0);
+          i++;
+          moves[i] = movePack(from, to, false, false, 2, false, 0);
+          i++;
+          moves[i] = movePack(from, to, false, false, 3, false, 0);
+          i++;
+          moves[i] = movePack(from, to, false, false, 4, false, 0);
+        }
+        else{
+          moves[i] = movePack(from, to, to - from > 8, false, false, false, 0);
+        }
       }
       i++;
       movements &= ~isolatedPush;

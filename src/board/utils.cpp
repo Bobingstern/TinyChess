@@ -1,4 +1,4 @@
-#include "../board.h"
+#include "board.h"
 #include <bitset>
 #include <cmath>
 #include <iostream>
@@ -27,11 +27,11 @@ int Board::hammingWeight(uint64_t x){
 
 void Board::printMove(uint16_t a) {
   std::bitset<16> m = a;
-  std::bitset<4> flag = a >> 12;
+  // std::bitset<4> flag = a >> 12;
   std::cout << "Binary Move:" << m << "\n";
-  std::cout << "From:" << (a & 0b0000000000111111) << "\n";
-  std::cout << "To:" << ((a & 0b0000111111000000) >> 6) << "\n";
-  std::cout << "Flag:" << flag << "\n";
+  std::cout << "From:" << moveReadFromIndex(a) << "\n";
+  std::cout << "To:" << (moveReadToIndex(a) >> 6) << "\n";
+  std::cout << "Flag:" << moveReadPromotion(a) << "\n";
 }
 
 uint64_t Board::bitReverse(uint64_t b) {

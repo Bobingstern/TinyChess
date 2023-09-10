@@ -93,10 +93,19 @@ int main() {
   using std::chrono::milliseconds;
 
   Board board = Board();
-  board.makeMove(movePack(48, 32, true, false, 0, false, 0));
-  board.makeMove(movePack(9, 25, true, false, 0, false, 0));
-  board.makeMove(movePack(32, 25, false, false, 0, true, 0));
-  board.makeMove(movePack(10, 18, false, false, 0, true, 0));
+  // White promotion test
+  // board.makeMove(movePack(A2, A4, true, false, 0, false, 0));
+  // board.makeMove(movePack(B7, B5, true, false, 0, false, 0));
+  // board.makeMove(movePack(A4, B5, false, false, 0, true, 0));
+  // board.makeMove(movePack(C7, C6, false, false, 0, true, 0));
+
+  // Black promo test
+  // board.makeMove(movePack(B2, B4, true, false, 0, false, 0));
+  // board.makeMove(movePack(A7, A5, true, false, 0, false, 0));
+  // board.makeMove(movePack(H2, H3, false, false, 0, false, 0));
+  // board.makeMove(movePack(A5, B4, false, false, 0, true, 0));
+  // board.makeMove(movePack(H3, H4, false, false, 0, true, 0));
+  
   //  board.makeMove(movePack(49, 41, false, false, 0, false, 0));
   //  board.makeMove(movePack(9, 17, false, false, 0, false, 0));
   //  board.makeMove(movePack(58, 49, false, false, 0, false, 0));
