@@ -1,10 +1,4 @@
 #include "../board.h"
-#include <bitset>
-#include <cmath>
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
-#include <vector>
 
 uint64_t Board::rankAttacks(uint8_t from) {
   uint64_t rank = (0xFFULL << (8 * (7 - (uint8_t)(from / 8))));
@@ -21,7 +15,7 @@ uint64_t Board::rookAttacks(uint8_t from) {
   return rankAttacks(from) | fileAttacks(from);
 }
 
-int Board::rookMoves(bool color, uint16_t* moves, int i) {
+uint16_t Board::rookMoves(bool color, uint16_t* moves, int i) {
   uint64_t rooksCopy = color == 0 ? whiteRooks : blackRooks;
   while (rooksCopy != 0) {
     uint64_t isolatedRook = rooksCopy & ((~rooksCopy) + 1);

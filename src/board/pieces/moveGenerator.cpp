@@ -1,13 +1,6 @@
 // https://analog-hors.github.io/webperft/
 
 #include "../board.h"
-#include <bitset>
-#include <cmath>
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <vector>
 
 int Board::generateMoves(uint16_t* moves, uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t& knightAttacks,
                          uint64_t& bishopAttacks, uint64_t& queenAttacks, uint64_t& kingAttacks) {
@@ -111,6 +104,7 @@ void Board::setAttackers(uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t&
 uint64_t Board::getAttackers() {
   return pawnAttackers | rookAttackers | knightAttackers | bishopAttackers | queenAttackers | kingAttackers;
 }
+
 bool Board::isLegal(uint64_t& attackers) {
   // color 0 is white
   uint16_t flag = (previousMoves[depth - 1] & 0b1111000000000000) >> 12;
@@ -155,7 +149,6 @@ bool Board::isLegal(uint64_t& attackers) {
 
   // First check for DIRECT king checks
   //  Rook attacks
-
   attacks = rookAttacks(from);
   if ((attacks & (color == 1 ? blackRooks : whiteRooks)) != 0 || (attacks & (color == 1 ? blackQueens : whiteQueens))) {
     return false;
@@ -190,7 +183,8 @@ bool Board::isLegal(uint64_t& attackers) {
   }
   return true;
 }
-void Board::sliceReadd() {
+
+void Board::sliceReAdd() {
   uint64_t prevTo = 1ULL << (63 - ((previousMoves[depth] & 0b0000111111000000) >> 6));
   uint16_t flag = (previousMoves[depth] >> 12);
 
@@ -374,7 +368,7 @@ void Board::makeMove(uint16_t a) {
     }
   }
   // Knight promo
-  if (flag == 0b1100 || flag == 0b1000){
+  if (flag == 0b1100 || flag == 0b1000) {
     // Remove blub
     *bitboards[previousMover[depth]] &= (~toBitboard);
     if (color == 0)
@@ -383,7 +377,7 @@ void Board::makeMove(uint16_t a) {
       *bitboards[BB_BLACK_KNIGHTS] |= toBitboard;
   }
   // Bishop promo
-  if (flag == 0b1101 || flag == 0b1001){
+  if (flag == 0b1101 || flag == 0b1001) {
     // Remove blub
     *bitboards[previousMover[depth]] &= (~toBitboard);
     if (color == 0)
@@ -392,7 +386,7 @@ void Board::makeMove(uint16_t a) {
       *bitboards[BB_BLACK_BISHOPS] |= toBitboard;
   }
   // Rook Promo
-  if (flag == 0b1110 || flag == 0b1010){
+  if (flag == 0b1110 || flag == 0b1010) {
     // Remove blub
     *bitboards[previousMover[depth]] &= (~toBitboard);
     if (color == 0)
@@ -401,16 +395,15 @@ void Board::makeMove(uint16_t a) {
       *bitboards[BB_BLACK_ROOKS] |= toBitboard;
   }
   // Queen Promo
-  if (flag == 0b1111 || flag == 0b1011){
+  if (flag == 0b1111 || flag == 0b1011) {
     // Remove blub
     *bitboards[previousMover[depth]] &= (~toBitboard);
     if (color == 0)
       *bitboards[BB_WHITE_QUEENS] |= toBitboard;
     if (color == 1)
       *bitboards[BB_BLACK_QUEENS] |= toBitboard;
-    
   }
-  
+
   if (color == 0) {
     // Right white rook has moved/been captured
     // White King moved
@@ -440,7 +433,7 @@ void Board::makeMove(uint16_t a) {
     }
   }
 
-  sliceReadd();
+  sliceReAdd();
   color = !color;
   depth++;
 }
@@ -526,30 +519,30 @@ void Board::unmakeMove(uint16_t a) {
   // Remove the piece and move back
 
   // Knight promo
-  if (flag == 0b1100 || flag == 0b1000){
-    if (color == BLACK){
+  if (flag == 0b1100 || flag == 0b1000) {
+    if (color == BLACK) {
       *bitboards[BB_WHITE_KNIGHTS] &= (~toBitboard);
       *bitboards[previousMover[depth]] |= fromBitboard;
     }
-    if (color == WHITE){
+    if (color == WHITE) {
       *bitboards[BB_BLACK_KNIGHTS] &= (~toBitboard);
       *bitboards[previousMover[depth]] |= fromBitboard;
     }
   }
   // Bishop promo
-  if (flag == 0b1101 || flag == 0b1001){
-    if (color == BLACK){
+  if (flag == 0b1101 || flag == 0b1001) {
+    if (color == BLACK) {
       *bitboards[BB_WHITE_BISHOPS] &= (~toBitboard);
       *bitboards[previousMover[depth]] |= fromBitboard;
     }
-    if (color == WHITE){
+    if (color == WHITE) {
       *bitboards[BB_BLACK_BISHOPS] &= (~toBitboard);
       *bitboards[previousMover[depth]] |= fromBitboard;
     }
   }
   // Rook Promo
-  if (flag == 0b1110 || flag == 0b1010){
-    if (color == BLACK){
+  if (flag == 0b1110 || flag == 0b1010) {
+    if (color == BLACK) {
       *bitboards[BB_WHITE_ROOKS] &= (~toBitboard);
       *bitboards[previousMover[depth]] |= fromBitboard;
     }
@@ -559,12 +552,12 @@ void Board::unmakeMove(uint16_t a) {
     }
   }
   // Queen Promo
-  if (flag == 0b1111 || flag == 0b1011){
-    if (color == BLACK){
+  if (flag == 0b1111 || flag == 0b1011) {
+    if (color == BLACK) {
       *bitboards[BB_WHITE_QUEENS] &= (~toBitboard);
       *bitboards[previousMover[depth]] |= fromBitboard;
     }
-    if (color == WHITE){
+    if (color == WHITE) {
       *bitboards[BB_BLACK_QUEENS] &= (~toBitboard);
       *bitboards[previousMover[depth]] |= fromBitboard;
     }
@@ -586,7 +579,7 @@ void Board::unmakeMove(uint16_t a) {
     captures[currentCapture] = -1;
     currentCapture--;
   }
-  sliceReadd();
+  sliceReAdd();
   previousMover[depth] = -1;
   color = !color;
 }

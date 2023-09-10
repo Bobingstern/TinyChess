@@ -1,10 +1,4 @@
 #include "../board.h"
-#include <bitset>
-#include <cmath>
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
-#include <vector>
 
 uint64_t Board::bishopAttacks(uint8_t from) {
   int diag = 7 - ((63 - from) & 7) - ((63 - from) >> 3);
@@ -14,7 +8,7 @@ uint64_t Board::bishopAttacks(uint8_t from) {
   return obstructionDifference(from, positiveDiagonalRay) | obstructionDifference(from, negativeDiagonalRay);
 }
 
-int Board::bishopMoves(bool color, uint16_t* moves, int i) {
+uint16_t Board::bishopMoves(bool color, uint16_t* moves, int i) {
   uint64_t bishopsCopy = color == 0 ? this->whiteBishops : blackBishops;
   while (bishopsCopy != 0) {
     uint64_t isolatedBishop = bishopsCopy & ((~bishopsCopy) + 1);

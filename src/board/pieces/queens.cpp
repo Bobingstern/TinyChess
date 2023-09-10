@@ -1,12 +1,6 @@
 #include "../board.h"
-#include <bitset>
-#include <cmath>
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
-#include <vector>
 
-int Board::queenMoves(bool color, uint16_t* moves, int i) {
+uint16_t Board::queenMoves(bool color, uint16_t* moves, int i) {
   uint64_t queensCopy = color == 0 ? whiteQueens : blackQueens;
   while (queensCopy != 0) {
     uint64_t isolatedQueen = queensCopy & ((~queensCopy) + 1);

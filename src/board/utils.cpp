@@ -1,10 +1,6 @@
 #include "board.h"
 #include <bitset>
-#include <cmath>
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <vector>
 
 uint64_t Board::whiteOccupation() {
@@ -18,11 +14,12 @@ uint64_t Board::blackOccupation() {
 uint64_t Board::combinedOccupation() {
   return whiteOccupation() | blackOccupation();
 }
-int Board::hammingWeight(uint64_t x){
-  x -= (x >> 1) & m1;             //put count of each 2 bits into those 2 bits
-  x = (x & m2) + ((x >> 2) & m2); //put count of each 4 bits into those 4 bits 
-  x = (x + (x >> 4)) & m4;        //put count of each 8 bits into those 8 bits 
-  return (x * h01) >> 56;  //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24)
+
+int Board::hammingWeight(uint64_t x) {
+  x -= (x >> 1) & m1;             // put count of each 2 bits into those 2 bits
+  x = (x & m2) + ((x >> 2) & m2); // put count of each 4 bits into those 4 bits
+  x = (x + (x >> 4)) & m4;        // put count of each 8 bits into those 8 bits
+  return (x * h01) >> 56;         // returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24)
 }
 
 void Board::printMove(uint16_t a) {
@@ -42,6 +39,7 @@ uint64_t Board::bitReverse(uint64_t b) {
 
   return (b << 48) | ((b & 0xffff0000) << 16) | ((b >> 16) & 0xffff0000) | (b >> 48);
 }
+
 // Hyperbola Quintessence for Sliding moves
 // uint64_t Board::fileAttacks(uint64_t bitMask, uint8_t from){
 //     uint64_t forward, reverse;

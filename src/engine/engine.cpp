@@ -1,5 +1,4 @@
 #include "engine.h"
-#include "../board/board.h"
 
 Engine::Engine() {
   this->board = NULL;
@@ -14,15 +13,15 @@ uint64_t Engine::runPerft(int depth) {
   uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;
   uint16_t moves[218];
   board->color = !board->color;
-  int total =
-      board->generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
-  // board.printBitBoard(board.getAttackers());
+  //  int total =
+  //      board->generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks,
+  //      kingAttacks);
   board->color = !board->color;
   return perft(depth, board->getAttackers());
 }
 
-uint64_t Engine::perft(int depth, uint64_t attackers){
-    if (depth == 0) {
+uint64_t Engine::perft(int depth, uint64_t attackers) {
+  if (depth == 0) {
     return 1ULL;
   }
   uint64_t nodes = 0;
@@ -30,7 +29,8 @@ uint64_t Engine::perft(int depth, uint64_t attackers){
 
   this->board->resetAttackers();
   uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;
-  int total = this->board->generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
+  int total = this->board->generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks,
+                                         kingAttacks);
 
   for (int i = 0; i < total; i++) {
     this->board->setAttackers(pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
@@ -42,11 +42,6 @@ uint64_t Engine::perft(int depth, uint64_t attackers){
     }
     uint64_t newNodes = perft(depth - 1, a);
     nodes += newNodes;
-    // if (depth == 5) {
-    //   // b.printMove(moves[i]);
-    //   pMove(moves[i]);
-    //   std::cout << ": " << newNodes << "\n";
-    // }
     this->board->unmakeMove(moves[i]);
   }
   return nodes;

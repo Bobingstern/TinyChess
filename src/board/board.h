@@ -1,10 +1,9 @@
 #pragma once
 
-#include <stdint.h>
-#include <vector>
-#include <stdlib.h>
 #include "squares.h"
-
+#include <stdint.h>
+#include <stdlib.h>
+#include <vector>
 
 #define bitRead(value, bit) (((value) >> (63 - bit)) & 0x01)
 #define bitSet(value, bit) ((value) |= (1UL << (63 - bit)))
@@ -33,13 +32,12 @@
 // 6 r to index
 // 6 r from index
 #define moveReadFromIndex(move) (move & 0b0000000000111111)
-#define moveReadToIndex(move)   (move & 0b0000111111000000)
+#define moveReadToIndex(move) (move & 0b0000111111000000)
 #define moveReadPromotion(move) (move & 0b0011000000000000)
 void moveSet(uint16_t& move, uint8_t from, uint8_t to, bool doublePawnPush, bool enPassant, uint8_t promo, bool capture,
              uint8_t castle);
 uint16_t movePack(uint8_t from, uint8_t to, bool doublePawnPush, bool enPassant, uint8_t promo, bool capture,
                   uint8_t castle);
-
 
 class Board {
   public:
@@ -52,7 +50,7 @@ class Board {
     // Move generator
     void makeMove(uint16_t a);
     void unmakeMove(uint16_t a);
-    void sliceReadd();
+    void sliceReAdd();
     // History
     int captures[32];
     int currentCapture = 0;
@@ -60,9 +58,9 @@ class Board {
     uint16_t previousMoves[12];
     uint16_t previousMover[12];
     int caps = 0;
-    
+
     bool color; // 0 == White
-    //Utilities
+    // Utilities
     uint64_t whiteOccupation();
     uint64_t blackOccupation();
     uint64_t combinedOccupation();
@@ -91,7 +89,7 @@ class Board {
 
     // Castling flags
     bool flagWhiteKingsideCastle = 1; // 1 means it can castle
-    int wkscDepth = -1; // White king sidecastle trip depth
+    int wkscDepth = -1;               // White king sidecastle trip depth
 
     bool flagWhiteQueensideCastle = 1;
     int wqscDepth = -1;
@@ -102,31 +100,32 @@ class Board {
     bool flagBlackQueensideCastle = 1;
     int bqscDepth = -1;
 
-    //Magic not bb
-    uint64_t m1  = 0x5555555555555555; //binary: 0101...
-    uint64_t m2  = 0x3333333333333333; //binary: 00110011..
-    uint64_t m4  = 0x0f0f0f0f0f0f0f0f; //binary:  4 zeros,  4 ones ...
-    uint64_t m8  = 0x00ff00ff00ff00ff; //binary:  8 zeros,  8 ones ...
-    uint64_t m16 = 0x0000ffff0000ffff; //binary: 16 zeros, 16 ones ...
-    uint64_t m32 = 0x00000000ffffffff; //binary: 32 zeros, 32 ones
+    // Magic not bb
+    uint64_t m1 = 0x5555555555555555;  // binary: 0101...
+    uint64_t m2 = 0x3333333333333333;  // binary: 00110011..
+    uint64_t m4 = 0x0f0f0f0f0f0f0f0f;  // binary:  4 zeros,  4 ones ...
+    uint64_t m8 = 0x00ff00ff00ff00ff;  // binary:  8 zeros,  8 ones ...
+    uint64_t m16 = 0x0000ffff0000ffff; // binary: 16 zeros, 16 ones ...
+    uint64_t m32 = 0x00000000ffffffff; // binary: 32 zeros, 32 ones
     uint64_t h01 = 0x0101010101010101;
-
 
     void printMove(uint16_t a);
 
-    int pawnMoves(bool color, uint16_t* moves, int i);
-    int rookMoves(bool color, uint16_t* moves, int i);
-    int bishopMoves(bool color, uint16_t* moves, int i);
-    int queenMoves(bool color, uint16_t* moves, int i);
-    int knightMoves(bool color, uint16_t* moves, int i);
-    int kingMoves(bool color, uint16_t* moves, int i);
+    uint16_t pawnMoves(bool color, uint16_t* moves, int i);
+    uint16_t rookMoves(bool color, uint16_t* moves, int i);
+    uint16_t bishopMoves(bool color, uint16_t* moves, int i);
+    uint16_t queenMoves(bool color, uint16_t* moves, int i);
+    uint16_t knightMoves(bool color, uint16_t* moves, int i);
+    uint16_t kingMoves(bool color, uint16_t* moves, int i);
 
-    int generateMoves(uint16_t* moves, uint64_t &pawnAttacks, uint64_t &rookAttacks, uint64_t &knightAttacks, uint64_t &bishopAttacks, uint64_t &queenAttacks, uint64_t &kingAttacks);
+    int generateMoves(uint16_t* moves, uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t& knightAttacks,
+                      uint64_t& bishopAttacks, uint64_t& queenAttacks, uint64_t& kingAttacks);
     bool isLegal(uint64_t& attackers);
-    //bool isCheck(uint64_t& attackers);
+    // bool isCheck(uint64_t& attackers);
     int movesFromIndex(int i, uint16_t* moves);
     void resetAttackers();
-    void setAttackers(uint64_t &pawnAttacks, uint64_t &rookAttacks, uint64_t &knightAttacks, uint64_t &bishopAttacks, uint64_t &queenAttacks, uint64_t &kingAttacks);
+    void setAttackers(uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t& knightAttacks, uint64_t& bishopAttacks,
+                      uint64_t& queenAttacks, uint64_t& kingAttacks);
     uint64_t getAttackers();
 
     uint64_t whitePawns;

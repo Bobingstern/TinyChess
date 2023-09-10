@@ -1,10 +1,4 @@
 #include "../board.h"
-#include <bitset>
-#include <cmath>
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
-#include <vector>
 
 uint64_t Board::knightAttacks(uint64_t isolated, uint8_t from) {
   uint64_t attacks = 0;
@@ -31,20 +25,17 @@ uint64_t Board::knightAttacks(uint64_t isolated, uint8_t from) {
   return attacks;
 }
 
-int Board::knightMoves(bool color, uint16_t* moves, int i) {
-
+uint16_t Board::knightMoves(bool color, uint16_t* moves, int i) {
   uint64_t knightsCopy = color == 0 ? whiteKnights : blackKnights;
   while (knightsCopy != 0) {
     uint64_t isolatedKnight = knightsCopy & ((~knightsCopy) + 1);
     uint8_t from = 63 - __builtin_ctzll(isolatedKnight);
     uint64_t attacks = knightAttacks(isolatedKnight, from);
-    // printBitBoard(attacks);
     knightAttackers |= attacks;
     while (attacks != 0) {
       uint64_t isolatedAttack = attacks & ((~attacks) + 1);
       uint8_t to = 63 - __builtin_ctzll(isolatedAttack);
       // tis a capture of the opposing color
-      // moves[i] = 0UL;
       if (((color == 0 ? blackOccupation() : whiteOccupation()) & isolatedAttack) != 0) {
         moves[i] = (movePack(from, to, false, false, false, true, 0));
         i++;
@@ -53,7 +44,6 @@ int Board::knightMoves(bool color, uint16_t* moves, int i) {
         moves[i] = (movePack(from, to, false, false, false, false, 0));
         i++;
       }
-
       attacks &= ~isolatedAttack;
     }
     knightsCopy &= ~isolatedKnight;

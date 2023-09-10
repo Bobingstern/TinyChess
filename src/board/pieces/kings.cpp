@@ -1,10 +1,4 @@
 #include "../board.h"
-#include <bitset>
-#include <cmath>
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
-#include <vector>
 
 uint64_t Board::kingAttacks(uint64_t isolated, uint8_t from) {
   uint64_t attacks = 0ULL;
@@ -25,14 +19,12 @@ uint64_t Board::kingAttacks(uint64_t isolated, uint8_t from) {
   return attacks;
 }
 
-int Board::kingMoves(bool color, uint16_t* moves, int i) {
-
+uint16_t Board::kingMoves(bool color, uint16_t* moves, int i) {
   uint64_t kingsCopy = color == 0 ? whiteKing : blackKing;
   while (kingsCopy != 0) {
     uint64_t isolatedKing = kingsCopy & ((~kingsCopy) + 1);
     uint8_t from = 63 - __builtin_ctzll(isolatedKing);
     uint64_t attacks = kingAttacks(isolatedKing, from);
-    // printBitBoard(kingAttacks(isolatedKing, from));
     kingAttackers |= attacks;
     while (attacks != 0) {
       uint64_t isolatedAttack = attacks & ((~attacks) + 1);
@@ -44,13 +36,11 @@ int Board::kingMoves(bool color, uint16_t* moves, int i) {
       } else if (((color == 0 ? whiteOccupation() : blackOccupation()) & isolatedAttack) == 0) {
         // No capture and not our own color
         moves[i] = (movePack(from, to, false, false, false, false, 0));
-        // printMove(moves[i]);
         i++;
       }
       attacks &= ~isolatedAttack;
     }
     kingsCopy &= ~isolatedKing;
   }
-
   return i;
 }

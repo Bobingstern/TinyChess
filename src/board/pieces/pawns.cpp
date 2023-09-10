@@ -1,14 +1,6 @@
 #include "../board.h"
-#include <bitset>
-#include <cmath>
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
-#include <vector>
 
-// Move order
-
-int Board::pawnMoves(bool color, uint16_t* moves, int i) {
+uint16_t Board::pawnMoves(bool color, uint16_t* moves, int i) {
   // Captures
   uint64_t pawnsCopy = color == 0 ? whitePawns : blackPawns;
   while (pawnsCopy != 0) {
@@ -34,7 +26,7 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i) {
       uint64_t isolatedAttack = movements & ((~movements) + 1);
       int to = 63 - __builtin_ctzll(isolatedAttack);
       if (((color == WHITE ? blackOccupation() : whiteOccupation()) & isolatedAttack) != 0) {
-        if (color == WHITE && (to >= A8 && to <= H8)){
+        if (color == WHITE && (to >= A8 && to <= H8)) {
           // Promo
           moves[i] = movePack(from, to, false, false, 1, true, 0);
           i++;
@@ -43,8 +35,7 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i) {
           moves[i] = movePack(from, to, false, false, 3, true, 0);
           i++;
           moves[i] = movePack(from, to, false, false, 4, true, 0);
-        }
-        else if (color == BLACK && (to >= A1 && to <= H1)){ 
+        } else if (color == BLACK && (to >= A1 && to <= H1)) {
           moves[i] = movePack(from, to, false, false, 1, true, 0);
           i++;
           moves[i] = movePack(from, to, false, false, 2, true, 0);
@@ -52,12 +43,10 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i) {
           moves[i] = movePack(from, to, false, false, 3, true, 0);
           i++;
           moves[i] = movePack(from, to, false, false, 4, true, 0);
-        } 
-        else{
+        } else {
           moves[i] = movePack(from, to, false, false, 0, true, 0);
         }
         i++;
-        
       }
       // En Passant moves
       if (color == 0) {
@@ -106,7 +95,7 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i) {
       uint64_t isolatedPush = movements & ((~movements) + 1);
       int to = 63 - __builtin_ctzll(isolatedPush);
       if (color == 0) {
-        if ((to >= 0 && to <= 7)){
+        if ((to >= 0 && to <= 7)) {
           moves[i] = movePack(from, to, false, false, 1, false, 0);
           i++;
           moves[i] = movePack(from, to, false, false, 2, false, 0);
@@ -114,12 +103,11 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i) {
           moves[i] = movePack(from, to, false, false, 3, false, 0);
           i++;
           moves[i] = movePack(from, to, false, false, 4, false, 0);
-        }
-        else{
+        } else {
           moves[i] = movePack(from, to, from - to > 8, false, false, false, 0);
         }
       } else {
-        if ((to >= 56 && to <= 63)){
+        if ((to >= 56 && to <= 63)) {
           moves[i] = movePack(from, to, false, false, 1, false, 0);
           i++;
           moves[i] = movePack(from, to, false, false, 2, false, 0);
@@ -127,8 +115,7 @@ int Board::pawnMoves(bool color, uint16_t* moves, int i) {
           moves[i] = movePack(from, to, false, false, 3, false, 0);
           i++;
           moves[i] = movePack(from, to, false, false, 4, false, 0);
-        }
-        else{
+        } else {
           moves[i] = movePack(from, to, to - from > 8, false, false, false, 0);
         }
       }

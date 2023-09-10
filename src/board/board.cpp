@@ -1,9 +1,6 @@
 #include "board.h"
-#include <bitset>
-#include <cmath>
 #include <iostream>
 #include <stdio.h>
-#include <string.h>
 
 void moveSet(uint16_t& move, uint8_t from, uint8_t to, bool doublePawnPush, bool enPassant, uint8_t promo, bool capture,
              uint8_t castle) {
