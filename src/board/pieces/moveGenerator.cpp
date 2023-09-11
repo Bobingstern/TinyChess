@@ -103,7 +103,11 @@ uint64_t Board::getAttackers() {
   return pawnAttackers | rookAttackers | knightAttackers | bishopAttackers | queenAttackers | kingAttackers;
 }
 
-bool Board::isLegal(uint64_t& attackers) {
+uint64_t Board::getKing(){
+  return color == 0 ? whiteKing : blackKing;
+}
+
+bool Board::isLegal(uint64_t& attackers, bool wasInCheck) {
   // color 0 is white
   uint16_t flag = (previousMoves[depth - 1] & 0b1111000000000000) >> 12;
   if (flag == 0b0011) {
@@ -137,26 +141,53 @@ bool Board::isLegal(uint64_t& attackers) {
   uint64_t prevTo = 1ULL << (63 - ((previousMoves[depth - 1] & 0b0000111111000000) >> 6));
   uint64_t prevFrom = 1ULL << (63 - ((previousMoves[depth - 1] & 0b0000000000111111)));
   int prevToNum = (((previousMoves[depth - 1] & 0b0000111111000000) >> 6));
+  int prevFromNum = previousMoves[depth - 1] & 0b0000000000111111;
 
-  if (previousMover[depth - 1] == 5 || previousMover[depth - 1] == 11) {
+  if (previousMover[depth - 1] == BB_WHITE_KING || previousMover[depth - 1] == BB_BLACK_KING) {
     // Was a king move and we can use cached vision data
     if ((attackers & isolated) != 0) {
       return false;
     }
   }
 
+  bool calculateRooks = true;
+  bool calculateBishops = true;
+
+  // This says that if there is no bishop/queen on the diagonal ray from the king, dont generate it's attack set
+  // etc for rooks
+  uint64_t rank = (0xFFULL << (8 * (7 - (uint8_t)(from / 8))));
+  uint64_t file = (0x101010101010101ULL << (uint8_t)(7 - (from % 8)));
+  int diag = 7 - ((63 - from) & 7) - ((63 - from) >> 3);
+  uint64_t positiveDiagonalRay = diag >= 0 ? 0x0102040810204080ULL >> diag * 8 : 0x0102040810204080ULL << -diag * 8;
+  diag = ((63 - from) & 7) - ((63 - from) >> 3);
+  uint64_t negativeDiagonalRay = diag >= 0 ? 0x8040201008040201ULL >> diag * 8 : 0x8040201008040201ULL << -diag * 8;
+  uint64_t diagonal = positiveDiagonalRay | negativeDiagonalRay;
+  uint64_t lines = rank | file;
+  uint64_t colorRooks = color == 0 ? whiteRooks | whiteQueens : blackRooks | blackQueens;
+  uint64_t colorBishops = color == 0 ? whiteBishops | whiteQueens : blackBishops | blackQueens;
+  if ( (lines & colorRooks) == 0){
+    calculateRooks = false;
+  }
+  if ( (diagonal & colorBishops) == 0){
+    calculateBishops = false;
+  }
+
   // First check for DIRECT king checks
   //  Rook attacks
-  attacks = rookAttacks(from);
-  if ((attacks & (color == 1 ? blackRooks : whiteRooks)) != 0 || (attacks & (color == 1 ? blackQueens : whiteQueens))) {
-    return false;
+  if (calculateRooks){
+    attacks = rookAttacks(from);
+    if ((attacks & (color == 1 ? blackRooks : whiteRooks)) != 0 || (attacks & (color == 1 ? blackQueens : whiteQueens))) {
+      return false;
+    }
   }
 
   // Bishops
-  attacks = bishopAttacks(from);
-  if ((attacks & (color == 1 ? blackBishops : whiteBishops)) != 0 ||
-      (attacks & (color == 1 ? blackQueens : whiteQueens))) {
-    return false;
+  if (calculateBishops){
+    attacks = bishopAttacks(from);
+    if ((attacks & (color == 1 ? blackBishops : whiteBishops)) != 0 ||
+        (attacks & (color == 1 ? blackQueens : whiteQueens))) {
+      return false;
+    }
   }
   // Knights
   attacks = knightAttacks(isolated, from);

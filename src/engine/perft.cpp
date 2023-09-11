@@ -30,9 +30,12 @@ uint64_t Engine::perft(int depth, uint64_t attackers, int originalDepth) {
 
   for (int i = 0; i < total; i++) {
     this->board->setAttackers(pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
+    uint64_t isolated = this->board->getKing();
+    bool check = (attackers & isolated) != 0;
+    
     this->board->makeMove(moves[i]);
     uint64_t a = this->board->getAttackers();
-    if (!this->board->isLegal(attackers)) {
+    if (!this->board->isLegal(attackers, check)) {
       this->board->unmakeMove(moves[i]);
       continue;
     }

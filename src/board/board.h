@@ -54,12 +54,13 @@ class Board {
 
     int generateMoves(uint16_t* moves, uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t& knightAttacks,
                       uint64_t& bishopAttacks, uint64_t& queenAttacks, uint64_t& kingAttacks);
-    bool isLegal(uint64_t& attackers);
+    bool isLegal(uint64_t& attackers, bool wasInCheck);
     int movesFromIndex(int i, uint16_t* moves);
     void resetAttackers();
     void setAttackers(uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t& knightAttacks, uint64_t& bishopAttacks,
                       uint64_t& queenAttacks, uint64_t& kingAttacks);
     uint64_t getAttackers();
+    uint64_t getKing();
 
     void printMove(uint16_t a, bool bin = false);
 
