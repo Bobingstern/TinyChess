@@ -81,7 +81,7 @@ void Board::printMove(uint16_t a, bool bin) {
     printNumToLetter(from);
     std::cout << (int)(((63 - from) / 8 + 1));
     printNumToLetter(to);
-    std::cout << (int)((63 - to) / 8 + 1);
+    std::cout << (int)((63 - to) / 8 + 1) << "\n";
   }
 }
 
