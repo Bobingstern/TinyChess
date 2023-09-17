@@ -46,9 +46,14 @@ Board::Board() {
   this->blackQueens = 0x1000000000000000ULL;
   this->whiteKing = 0x000000000000008ULL;
   this->blackKing = 0x0800000000000000ULL;
+  
 
-  // this->blackPawns &= (0b11110111ULL << 48) ;
-  // this->whitePawns &= (0b11110111ULL << 8) ;
+  //this->blackRooks = 0;
+  //this->whiteRooks = 0;
+  //this->whiteKnights <<= 17;
+  //this->blackPawns >>= 16;
+  //this->blackPawns &= (0b11110111ULL << 48) ;
+  //this->whitePawns &= (0b11110111ULL << 8) ;
   //  this->whitePawns >>= 15;
   //  this->whitePawns <<= 15;
   //  this->whitePawns = 0;

@@ -61,8 +61,27 @@ class Board {
                       uint64_t& queenAttacks, uint64_t& kingAttacks);
     uint64_t getAttackers();
     uint64_t getKing();
+    int hammingWeight(uint64_t a);
+    int pawnsCount(bool color);
+    int knightsCount(bool color);
+    int bishopsCount(bool color);
+    int rooksCount(bool color);
+    int queensCount(bool color);
 
     void printMove(uint16_t a, bool bin = false);
+
+    uint64_t whitePawns;
+    uint64_t blackPawns;
+    uint64_t whiteKnights;
+    uint64_t blackKnights;
+    uint64_t whiteBishops;
+    uint64_t blackBishops;
+    uint64_t whiteRooks;
+    uint64_t blackRooks;
+    uint64_t whiteQueens;
+    uint64_t blackQueens;
+    uint64_t whiteKing;
+    uint64_t blackKing;
 
   private:
     void printBitBoard(uint64_t bb);
@@ -95,7 +114,8 @@ class Board {
     uint64_t bishopAttacks(uint8_t from);
     uint64_t knightAttacks(uint64_t isolated, uint8_t from);
     uint64_t kingAttacks(uint64_t isolated, uint8_t from);
-    int hammingWeight(uint64_t a);
+
+    
 
     uint64_t pawnAttackers;
     uint64_t rookAttackers;
@@ -135,17 +155,6 @@ class Board {
 
     // bool isCheck(uint64_t& attackers);
 
-    uint64_t whitePawns;
-    uint64_t blackPawns;
-    uint64_t whiteKnights;
-    uint64_t blackKnights;
-    uint64_t whiteBishops;
-    uint64_t blackBishops;
-    uint64_t whiteRooks;
-    uint64_t blackRooks;
-    uint64_t whiteQueens;
-    uint64_t blackQueens;
-    uint64_t whiteKing;
-    uint64_t blackKing;
+    
     uint64_t** bitboards = nullptr;
 };

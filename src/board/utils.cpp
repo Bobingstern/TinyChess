@@ -22,6 +22,23 @@ int Board::hammingWeight(uint64_t x) {
   return (x * h01) >> 56;         // returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24)
 }
 
+int Board::pawnsCount(bool color){
+  return hammingWeight(color == WHITE ? whitePawns : blackPawns);
+}
+int Board::knightsCount(bool color){
+  return hammingWeight(color == WHITE ? whiteKnights : blackKnights);
+}
+int Board::bishopsCount(bool color){
+  return hammingWeight(color == WHITE ? whiteBishops : blackBishops);
+}
+int Board::rooksCount(bool color){
+  return hammingWeight(color == WHITE ? whiteRooks : blackRooks);
+}
+int Board::queensCount(bool color){
+  return hammingWeight(color == WHITE ? whiteQueens : blackQueens);
+}
+
+
 void printNumToLetter(uint8_t a) {
   if (a % 8 == 0) {
     std::cout << "a";
@@ -76,6 +93,9 @@ uint64_t Board::bitReverse(uint64_t b) {
 
   return (b << 48) | ((b & 0xffff0000) << 16) | ((b >> 16) & 0xffff0000) | (b >> 48);
 }
+
+
+
 
 // Hyperbola Quintessence for Sliding moves
 // uint64_t Board::fileAttacks(uint64_t bitMask, uint8_t from){
