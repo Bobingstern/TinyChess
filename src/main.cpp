@@ -14,14 +14,19 @@ int main() {
   using std::chrono::milliseconds;
 
   Board board = Board();
+  board.makeMove(movePack(16, 24, false, false, 0, false, 0));
   board.printBoard();
-
+  
   Engine engine = Engine(&board);
-
-  for (int i=0;i<20;i++){
+  // Mate testing
+  for (int i=0;i<120;i++){
     auto t1 = high_resolution_clock::now();
     uint16_t bestMove;
-    bestMove = engine.runSearch(4);
+    bool done = false;
+    bestMove = engine.runSearch(2, done);
+    if (done){
+      break;
+    }
     auto t2 = high_resolution_clock::now();
     duration<double, std::milli> ms_double = t2 - t1;
     std::cout << ((double)(ms_double.count()) / 1000.0) << " seconds. Eval:\n";

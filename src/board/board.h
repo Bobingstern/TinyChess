@@ -86,18 +86,18 @@ class Board {
     void printBitBoard(uint64_t bb);
 
     void printAllBitBoards();
-
-  private:
-    
-    void sliceReAdd();
-    // History
     int captures[128];
     int currentCapture = 0;
     int depth = 0;
     uint16_t previousMoves[128];
     uint16_t previousMover[128];
-
     int caps = 0;
+
+  private:
+    
+    void sliceReAdd();
+    // History
+    
     // Utilities
     uint64_t whiteOccupation();
     uint64_t blackOccupation();
