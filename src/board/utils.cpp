@@ -22,22 +22,21 @@ int Board::hammingWeight(uint64_t x) {
   return (x * h01) >> 56;         // returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24)
 }
 
-int Board::pawnsCount(bool color){
+int Board::pawnsCount(bool color) {
   return hammingWeight(color == WHITE ? whitePawns : blackPawns);
 }
-int Board::knightsCount(bool color){
+int Board::knightsCount(bool color) {
   return hammingWeight(color == WHITE ? whiteKnights : blackKnights);
 }
-int Board::bishopsCount(bool color){
+int Board::bishopsCount(bool color) {
   return hammingWeight(color == WHITE ? whiteBishops : blackBishops);
 }
-int Board::rooksCount(bool color){
+int Board::rooksCount(bool color) {
   return hammingWeight(color == WHITE ? whiteRooks : blackRooks);
 }
-int Board::queensCount(bool color){
+int Board::queensCount(bool color) {
   return hammingWeight(color == WHITE ? whiteQueens : blackQueens);
 }
-
 
 void printNumToLetter(uint8_t a) {
   if (a % 8 == 0) {
@@ -74,14 +73,34 @@ void Board::printMove(uint16_t a, bool bin) {
     std::cout << "Binary Move:" << m << "\n";
     std::cout << "From:" << moveReadFromIndex(a) << "\n";
     std::cout << "To:" << (moveReadToIndex(a) >> 6) << "\n";
-    std::cout << "Flag:" << moveReadPromotion(a) << "\n";
+    std::cout << "Flag:" << moveReadFlags(a) << "\n";
   } else {
-    uint8_t from = (a & 0b0000000000111111);
-    uint8_t to = ((a >> 6) & 0b0000000000111111);
-    printNumToLetter(from);
-    std::cout << (int)(((63 - from) / 8 + 1));
-    printNumToLetter(to);
-    std::cout << (int)((63 - to) / 8 + 1) << "\n";
+    const uint16_t flags = moveReadFlags(a);
+    //    if (flags) {
+    //      std::bitset<16> f = flags;
+    //      std::cout << " (Flag: " << f << ")";
+    //    }
+    if (flags == FLAG_KING_CASTLE) {
+      std::cout << "0-0";
+    } else if (flags == FLAG_QUEEN_CASTLE) {
+      std::cout << "0-0-0";
+    } else {
+      uint8_t from = (a & 0b0000000000111111);
+      uint8_t to = ((a >> 6) & 0b0000000000111111);
+      printNumToLetter(from);
+      std::cout << (int)(((63 - from) / 8 + 1));
+      printNumToLetter(to);
+      std::cout << (int)((63 - to) / 8 + 1);
+      if (flags == FLAG_KNIGHT_PROMOTION || flags == FLAG_KNIGHT_PROMOTION_CAPTURE) {
+        std::cout << "=N";
+      } else if (flags == FLAG_BISHOP_PROMOTION || flags == FLAG_BISHOP_PROMOTION_CAPTURE) {
+        std::cout << "=B";
+      } else if (flags == FLAG_ROOK_PROMOTION || flags == FLAG_ROOK_PROMOTION_CAPTURE) {
+        std::cout << "=R";
+      } else if (flags == FLAG_QUEEN_PROMOTION || flags == FLAG_QUEEN_PROMOTION_CAPTURE) {
+        std::cout << "=Q";
+      }
+    }
   }
 }
 
@@ -93,9 +112,6 @@ uint64_t Board::bitReverse(uint64_t b) {
 
   return (b << 48) | ((b & 0xffff0000) << 16) | ((b >> 16) & 0xffff0000) | (b >> 48);
 }
-
-
-
 
 // Hyperbola Quintessence for Sliding moves
 // uint64_t Board::fileAttacks(uint64_t bitMask, uint8_t from){

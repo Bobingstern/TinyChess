@@ -33,11 +33,29 @@
 // 6 r from index
 #define moveReadFromIndex(move) (move & 0b0000000000111111)
 #define moveReadToIndex(move) (move & 0b0000111111000000)
-#define moveReadPromotion(move) (move & 0b0011000000000000)
+#define moveReadFlags(move) (move & 0b1111000000000000)
 void moveSet(uint16_t& move, uint8_t from, uint8_t to, bool doublePawnPush, bool enPassant, uint8_t promo, bool capture,
              uint8_t castle);
 uint16_t movePack(uint8_t from, uint8_t to, bool doublePawnPush, bool enPassant, uint8_t promo, bool capture,
                   uint8_t castle);
+
+// https://www.chessprogramming.org/Encoding_Moves#From-To_Based
+#define FLAG_QUIET_MOVE 0b0000000000000000
+#define FLAG_DOUBLE_PAWN_PUSH 0b0001000000000000
+#define FLAG_KING_CASTLE 0b0010000000000000
+#define FLAG_QUEEN_CASTLE 0b0011000000000000
+#define FLAG_CAPTURE 0b0100000000000000
+#define FLAG_EN_PASSANT_CAPTURE 0b0101000000000000
+
+#define FLAG_KNIGHT_PROMOTION 0b1000000000000000
+#define FLAG_BISHOP_PROMOTION 0b1001000000000000
+#define FLAG_ROOK_PROMOTION 0b1010000000000000
+#define FLAG_QUEEN_PROMOTION 0b1011000000000000
+
+#define FLAG_KNIGHT_PROMOTION_CAPTURE 0b1100000000000000
+#define FLAG_BISHOP_PROMOTION_CAPTURE 0b1101000000000000
+#define FLAG_ROOK_PROMOTION_CAPTURE 0b1110000000000000
+#define FLAG_QUEEN_PROMOTION_CAPTURE 0b1111000000000000
 
 class Board {
   public:
@@ -94,10 +112,9 @@ class Board {
     int caps = 0;
 
   private:
-    
     void sliceReAdd();
     // History
-    
+
     // Utilities
     uint64_t whiteOccupation();
     uint64_t blackOccupation();
@@ -116,8 +133,6 @@ class Board {
     uint64_t bishopAttacks(uint8_t from);
     uint64_t knightAttacks(uint64_t isolated, uint8_t from);
     uint64_t kingAttacks(uint64_t isolated, uint8_t from);
-
-    
 
     uint64_t pawnAttackers;
     uint64_t rookAttackers;
@@ -157,6 +172,5 @@ class Board {
 
     // bool isCheck(uint64_t& attackers);
 
-    
     uint64_t** bitboards = nullptr;
 };
