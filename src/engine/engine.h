@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <vector>
+#include <ctime>
+
 
 #define PAWN_MATERIAL_VALUE 100
 #define KNIGHT_MATERIAL_VALUE 325
@@ -22,9 +24,9 @@ class Engine {
     float staticEvaluation();
     
     float alphaBeta(float alpha, float beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove);
-    float quiesce(float alpha, float beta, uint64_t attackers, int depthleft);
+    float quiesce(float alpha, float beta, uint64_t attackers);
     bool badCapture(uint16_t move);
-    uint16_t runSearch(int depth, bool &done);
+    uint16_t runSearch(int depth, int maxTime);
 
     float pieceSquareTables(int phase);
     int16_t pawnPST(int loc);
@@ -44,6 +46,9 @@ class Engine {
 
     int16_t kingPST(int loc);
     int16_t egKingPST(int loc);
+
+    std::clock_t startClock;
+    int maxTime = -1;
 
   private:
     const uint64_t m1 = 0x5555555555555555;  // binary: 0101...

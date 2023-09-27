@@ -1,5 +1,5 @@
 #include "../board.h"
-
+#include <iostream>
 int Board::generateMoves(uint16_t* moves, uint64_t& pawnAttacks, uint64_t& rookAttacks, uint64_t& knightAttacks,
                          uint64_t& bishopAttacks, uint64_t& queenAttacks, uint64_t& kingAttacks) {
   int i = 0;
@@ -41,14 +41,14 @@ int Board::generateMoves(uint16_t* moves, uint64_t& pawnAttacks, uint64_t& rookA
   i = bishopMoves(color, moves, i);
   i = queenMoves(color, moves, i);
   i = kingMoves(color, moves, i);
-
-  // Totally not confusing
+  //position startpos moves d2d4 g8f6 c2c4 e7e6 g1f3 f8b4 c1d2 b8c6 d2b4 c6b4 h2h3 b4c6 f3e5 e8g8 g2g3 d8e8 f2f3 d7d6 e5g4 c8d7 g4h2 c6a5 e2e3 a8d8 b2b3 a5c6 a2a3 d6d5 c4c5 a7a6 h3h4 f6h5 h1g1 h5f6 g3g4 h7h6 f3f4 g7g5 h4g5 h6g5 f4g5 f6e4 h2f3 e6e5 f3e5 c6e5 d4e5 e8e5 a1a2 e5g5 d1c1 d7c6 b3b4 f7f5 f1d3 g5h4 e1d1 e4f2 a2f2 h4f2 g1h1 f5g4 d3h7 g8f7 b1d2 g4g3 h7c2 g3g2 c2g6 f7g6 c1b1 g6g5 h1h5 g5h5 b1h7 h5g4 h7g6 g4h3 g6h6 f2h4 h6e6 h4g4 e6g4 h3g4 e3e4 g2g1q d2f1 f8f2 d1c1 d5e4 c1b1 e4e3 b1a1 a6a5 a1b1 a5b4 b1a1 b4a3 a1b1 a3a2 b1a1 b7b5
   pawnAttacks = pawnAttackers;
   rookAttacks = rookAttackers;
   knightAttacks = knightAttackers;
   bishopAttacks = bishopAttackers;
   queenAttacks = queenAttackers;
   kingAttacks = kingAttackers;
+  fenEnpassant = false;
   return i;
 }
 
@@ -142,9 +142,10 @@ bool Board::isLegal(uint64_t& attackers, bool wasInCheck) {
   uint64_t prevFrom = 1ULL << (63 - ((previousMoves[depth - 1] & 0b0000000000111111)));
   int prevToNum = (((previousMoves[depth - 1] & 0b0000111111000000) >> 6));
   int prevFromNum = previousMoves[depth - 1] & 0b0000000000111111;
-
   if (previousMover[depth - 1] == BB_WHITE_KING || previousMover[depth - 1] == BB_BLACK_KING) {
     // Was a king move and we can use cached vision data
+    //printBitBoard(attackers);
+    //printBoard();
     if ((attackers & isolated) != 0) {
       return false;
     }
@@ -186,12 +187,14 @@ bool Board::isLegal(uint64_t& attackers, bool wasInCheck) {
     attacks = bishopAttacks(from);
     if ((attacks & (color == 1 ? blackBishops : whiteBishops)) != 0 ||
         (attacks & (color == 1 ? blackQueens : whiteQueens))) {
+          
       return false;
     }
   }
   // Knights
   attacks = knightAttacks(isolated, from);
   if ((attacks & (color == 1 ? blackKnights : whiteKnights)) != 0) {
+    
     return false;
   }
   // Pawns
@@ -326,16 +329,24 @@ void Board::makeMove(uint16_t a) {
       whiteKing <<= 2;
       whiteRooks &= (~128ULL);
       whiteRooks |= (whiteKing >> 1);
+
       flagWhiteQueensideCastle = 0;
       wqscDepth = depth;
+      flagWhiteKingsideCastle = 0;
+      wkscDepth = 0;
+
       previousMover[depth] = 5;
     }
     if (color == 1) {
       blackKing <<= 2;
       blackRooks &= (~(128ULL << 56));
       blackRooks |= (blackKing >> 1);
+      
+      flagBlackKingsideCastle = 0;
+      bkscDepth = depth;
       flagBlackQueensideCastle = 0;
       bqscDepth = depth;
+
       previousMover[depth] = 11;
     }
     color = !color;
@@ -348,16 +359,24 @@ void Board::makeMove(uint16_t a) {
       whiteKing >>= 2;
       whiteRooks &= (~1ULL);
       whiteRooks |= (whiteKing << 1);
+
+      flagWhiteQueensideCastle = 0;
+      wqscDepth = depth;
       flagWhiteKingsideCastle = 0;
-      wkscDepth = depth;
+      wkscDepth = 0;
+
       previousMover[depth] = 5;
     }
     if (color == 1) {
       blackKing >>= 2;
       blackRooks &= (~(1ULL << 56));
       blackRooks |= (blackKing << 1);
+
       flagBlackKingsideCastle = 0;
       bkscDepth = depth;
+      flagBlackQueensideCastle = 0;
+      bqscDepth = depth;
+
       previousMover[depth] = 11;
     }
     color = !color;
@@ -468,6 +487,9 @@ void Board::makeMove(uint16_t a) {
 }
 
 void Board::unmakeMove(uint16_t a) {
+  // if (a == 0b0000111100111101){
+  //   std::cout << "FOUND\n";
+  // }
   depth--;
   previousMoves[depth] = 0;
   if (depth == wkscDepth) {

@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <vector>
+#include <string>
+
 
 #define bitRead(value, bit) (((value) >> (63 - bit)) & 0x01)
 #define bitSet(value, bit) ((value) |= (1UL << (63 - bit)))
@@ -104,6 +106,8 @@ class Board {
     void printBitBoard(uint64_t bb);
 
     void printAllBitBoards();
+
+    void readFEN(std::string fen);
     int captures[128];
     int currentCapture = 0;
     int depth = 0;
@@ -111,10 +115,12 @@ class Board {
     uint16_t previousMover[128];
     int caps = 0;
 
+    uint64_t kingAttacks(uint64_t isolated, uint8_t from);
+    //position startpos moves d2d4 g8f6 c2c4 e7e6 g1f3 f8b4 c1d2 b8c6 d2b4 c6b4 h2h3 b4c6 f3e5 e8g8 g2g3 d8e8 f2f3 d7d6 e5g4 c8d7 g4h2 c6a5 e2e3 a8d8 b2b3 a5c6 a2a3 d6d5 c4c5 a7a6 h3h4 f6h5 h1g1 h5f6 g3g4 h7h6 f3f4 g7g5 h4g5 h6g5 f4g5 f6e4 h2f3 e6e5 f3e5 c6e5 d4e5 e8e5 a1a2 e5g5 d1c1 d7c6 b3b4 f7f5 f1d3 g5h4 e1d1 e4f2 a2f2 h4f2 g1h1 f5g4 d3h7 g8f7 b1d2 g4g3 h7c2 g3g2 c2g6 f7g6 c1b1 g6g5 h1h5 g5h5 b1h7 h5g4 h7g6 g4h3 g6h6 f2h4 h6e6 h4g4 e6g4 h3g4 e3e4 g2g1q d2f1 f8f2 d1c1 d5e4 c1b1 e4e3 b1a1 a6a5 a1b1 a5b4 b1a1 b4a3 a1b1 a3a2 b1a1 b7b5
   private:
     void sliceReAdd();
     // History
-
+    bool fenEnpassant = false;
     // Utilities
     uint64_t whiteOccupation();
     uint64_t blackOccupation();
@@ -132,7 +138,7 @@ class Board {
     uint64_t rookAttacks(uint8_t from);
     uint64_t bishopAttacks(uint8_t from);
     uint64_t knightAttacks(uint64_t isolated, uint8_t from);
-    uint64_t kingAttacks(uint64_t isolated, uint8_t from);
+    
 
     uint64_t pawnAttackers;
     uint64_t rookAttackers;

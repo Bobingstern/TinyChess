@@ -1,4 +1,5 @@
 #include "../board.h"
+#include <iostream>
 
 uint64_t Board::knightAttacks(uint64_t isolated, uint8_t from) {
   uint64_t attacks = 0;

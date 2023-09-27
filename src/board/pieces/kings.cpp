@@ -8,13 +8,17 @@ uint64_t Board::kingAttacks(uint64_t isolated, uint8_t from) {
     // Not on A file
     attacks |= isolated << 1;
     attacks |= isolated >> 7;
-    attacks |= isolated << 7;
+    attacks |= isolated << 9;
+    //if ((from + 1) % 8 != 0)
+      
   }
   if ((from + 1) % 8 != 0) {
     // Not on A file
     attacks |= isolated >> 1;
     attacks |= isolated >> 9;
-    attacks |= isolated << 9;
+    attacks |= isolated << 7;
+    //if (from % 8 != 0)
+      
   }
   return attacks;
 }

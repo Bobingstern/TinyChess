@@ -50,7 +50,7 @@ uint16_t Board::pawnMoves(bool color, uint16_t* moves, int i) {
       }
       // En Passant moves
       if (color == 0) {
-        if (depth > 0 && previousMover[depth - 1] == 6) {
+        if (depth > 0 && (previousMover[depth - 1] == 6)) {
           if ((from >= 24 && from < 32) && ((previousMoves[depth - 1] & 0b1111000000000000) >> 12) == 1 &&
               ((previousMoves[depth - 1] & 0b0000111111000000) >> 6) == to + 8) {
             moves[i] = movePack(from, to, false, true, false, false, 0);
@@ -104,7 +104,7 @@ uint16_t Board::pawnMoves(bool color, uint16_t* moves, int i) {
           i++;
           moves[i] = movePack(from, to, false, false, 4, false, 0);
         } else {
-          moves[i] = movePack(from, to, from - to > 8, false, false, false, 0);
+          moves[i] = movePack(from, to, from - to > 9, false, false, false, 0);
         }
       } else {
         if ((to >= 56 && to <= 63)) {
@@ -116,7 +116,7 @@ uint16_t Board::pawnMoves(bool color, uint16_t* moves, int i) {
           i++;
           moves[i] = movePack(from, to, false, false, 4, false, 0);
         } else {
-          moves[i] = movePack(from, to, to - from > 8, false, false, false, 0);
+          moves[i] = movePack(from, to, to - from > 9, false, false, false, 0);
         }
       }
       i++;
