@@ -2,6 +2,30 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#define PAWN   0
+#define KNIGHT 1
+#define BISHOP 2
+#define ROOK   3
+#define QUEEN  4
+#define KING   5
+
+/* board representation */
+#define WHITE  0
+#define BLACK  1
+
+#define WHITE_PAWN      (2*PAWN   + WHITE)
+#define BLACK_PAWN      (2*PAWN   + BLACK)
+#define WHITE_KNIGHT    (2*KNIGHT + WHITE)
+#define BLACK_KNIGHT    (2*KNIGHT + BLACK)
+#define WHITE_BISHOP    (2*BISHOP + WHITE)
+#define BLACK_BISHOP    (2*BISHOP + BLACK)
+#define WHITE_ROOK      (2*ROOK   + WHITE)
+#define BLACK_ROOK      (2*ROOK   + BLACK)
+#define WHITE_QUEEN     (2*QUEEN  + WHITE)
+#define BLACK_QUEEN     (2*QUEEN  + BLACK)
+#define WHITE_KING      (2*KING   + WHITE)
+#define BLACK_KING      (2*KING   + BLACK)
+#define EMPTY           (BLACK_KING  +  1)
 
 int Engine::hammingWeight(uint64_t x) {
   x -= (x >> 1) & m1;             // put count of each 2 bits into those 2 bits
@@ -82,54 +106,88 @@ int Engine::hammingWeight(uint64_t x) {
 //     };
 //     return mg_queen_table[ this->board->color == WHITE ? loc : 63 - loc];
 // }
-
+int Engine::pstScores(uint64_t a, int &mg, int &eg, int i){
+    int gamePhase = 0;
+    uint64_t cpy = a;
+    while (cpy != 0) {
+        uint64_t isolated = cpy & ((~cpy) + 1);
+        int from = 63 - __builtin_ctzll(isolated);
+        if (i == 0){
+            mg += pawnPST(from) + mg_value[i];
+            eg += egPawnPST(from) + eg_value[i];
+        }
+        if (i == 1){
+            mg += knightPST(from) + mg_value[i];
+            eg += egKnightPST(from) + eg_value[i];
+        }
+        if (i == 2){
+            mg += bishopPST(from) + mg_value[i];
+            eg += egBishopPST(from) + eg_value[i];
+        }
+        if (i == 3){
+            mg += rookPST(from) + mg_value[i];
+            eg += egRookPST(from) + eg_value[i];
+        }
+        if (i == 4){
+            mg += queenPST(from) + mg_value[i];
+            eg += egQueenPST(from) + eg_value[i];
+        }
+        if (i == 5){
+            mg += kingPST(from) + mg_value[i];
+            eg += egKingPST(from) + eg_value[i];
+        }
+        cpy &= ~isolated;
+        gamePhase ++;
+    }
+    return gamePhase;
+}
 float Engine::pieceSquareTables(int phase){
     // Pawns
     float score = 0;
-    uint64_t cpy = this->board->color == 0 ? this->board->whitePawns : this->board->blackPawns;
-    while (cpy != 0) {
-        uint64_t isolated = cpy & ((~cpy) + 1);
-        int from = 63 - __builtin_ctzll(isolated);
-        score += (( pawnPST(from) * (256 - phase)) + (egPawnPST(from) * phase)) / 256;
-        cpy &= ~isolated;
-    }
-    cpy = this->board->color == 0 ? this->board->whiteKnights : this->board->blackKnights;
-    while (cpy != 0) {
-        uint64_t isolated = cpy & ((~cpy) + 1);
-        int from = 63 - __builtin_ctzll(isolated);
-        score += (( knightPST(from) * (256 - phase)) + (egKnightPST(from) * phase)) / 256;
-        cpy &= ~isolated;
-    }
-    cpy = this->board->color == 0 ? this->board->whiteBishops : this->board->blackBishops;
-    while (cpy != 0) {
-        uint64_t isolated = cpy & ((~cpy) + 1);
-        int from = 63 - __builtin_ctzll(isolated);
-        score += (( bishopPST(from) * (256 - phase)) + (egBishopPST(from) * phase)) / 256;
-        
-        cpy &= ~isolated;
-    }
-    cpy = this->board->color == 0 ? this->board->whiteRooks : this->board->blackRooks;
-    while (cpy != 0) {
-        uint64_t isolated = cpy & ((~cpy) + 1);
-        int from = 63 - __builtin_ctzll(isolated);
-        score += (( rookPST(from) * (256 - phase)) + (egRookPST(from) * phase)) / 256;
-        cpy &= ~isolated;
-    }
-    cpy = this->board->color == 0 ? this->board->whiteQueens : this->board->blackQueens;
-    while (cpy != 0) {
-        uint64_t isolated = cpy & ((~cpy) + 1);
-        int from = 63 - __builtin_ctzll(isolated);
-        score += (( queenPST(from) * (256 - phase)) + (egQueenPST(from) * phase)) / 256;
-        cpy &= ~isolated;
-    }
-    // cpy = this->board->color == 0 ? this->board->whiteKing : this->board->blackKing;
-    // while (cpy != 0) {
-    //     uint64_t isolated = cpy & ((~cpy) + 1);
-    //     int from = 63 - __builtin_ctzll(isolated);
-    //     score += (( kingPST(from) * (256 - phase)) + (egKingPST(from) * phase)) / 256;
-    //     cpy &= ~isolated;
-    // }
-    return score;
+    int whiteMG = 0;
+    int whiteEG = 0;
+    int blackMG = 0;
+    int blackEG = 0;
+    int gamePhase = 0;
+    bool currColor = board->color;
+    board->color = WHITE;
+    gamePhase += (pstScores(board->whitePawns, whiteMG, whiteEG, 0)) * gamephaseInc[0];
+    board->color = BLACK;
+    gamePhase += (pstScores(board->blackPawns, blackMG, blackEG, 0)) * gamephaseInc[0];
+    
+    board->color = WHITE;
+    gamePhase += (pstScores(board->whiteKnights, whiteMG, whiteEG, 1)) * gamephaseInc[1];
+    board->color = BLACK;
+    gamePhase += (pstScores(board->blackKnights, blackMG, blackEG, 1)) * gamephaseInc[1];
+
+    board->color = WHITE;
+    gamePhase += (pstScores(board->whiteBishops, whiteMG, whiteEG, 2)) * gamephaseInc[2];
+    board->color = BLACK;
+    gamePhase += (pstScores(board->blackBishops, blackMG, blackEG, 2)) * gamephaseInc[2];
+
+    board->color = WHITE;
+    gamePhase += (pstScores(board->whiteRooks, whiteMG, whiteEG, 3)) * gamephaseInc[3];
+    board->color = BLACK;
+    gamePhase += (pstScores(board->blackRooks, blackMG, blackEG, 3)) * gamephaseInc[3];
+
+    board->color = WHITE;
+    gamePhase += (pstScores(board->whiteQueens, whiteMG, whiteEG, 4)) * gamephaseInc[4];
+    board->color = BLACK;
+    gamePhase += (pstScores(board->blackQueens, blackMG, blackEG, 4)) * gamephaseInc[4];
+
+    board->color = WHITE;
+    gamePhase += (pstScores(board->whiteKing, whiteMG, whiteEG, 5)) * gamephaseInc[5];
+    board->color = BLACK;
+    gamePhase += (pstScores(board->blackKing, blackMG, blackEG, 5)) * gamephaseInc[5];
+    
+    board->color = currColor;
+
+    int mgScore = board->color == WHITE ? whiteMG - blackMG : blackMG - whiteMG;
+    int egScore = board->color == WHITE ? whiteEG - blackEG : blackEG - whiteEG;
+    int mgPhase = gamePhase;
+    if (mgPhase > 24) mgPhase = 24;
+    int egPhase = 24 - mgPhase;
+    return (mgScore * mgPhase + egScore * egPhase) / 24;
 }
 
 float Engine::staticEvaluation(){
@@ -189,5 +247,5 @@ float Engine::staticEvaluation(){
     phase -= (whiteQueens + blackQueens) * queenPhase;
     phase = (phase * 256 + (totalPhase / 2)) / totalPhase;
 
-    return MS + pieceSquareTables(phase);
+    return pieceSquareTables(phase);
 }

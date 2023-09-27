@@ -29,6 +29,7 @@ class Engine {
     uint16_t runSearch(int depth, int maxTime);
 
     float pieceSquareTables(int phase);
+    int pstScores(uint64_t a, int &scoreA, int &scoreB, int i);
     int16_t pawnPST(int loc);
     int16_t egPawnPST(int loc);
 
@@ -58,6 +59,10 @@ class Engine {
     const uint64_t m16 = 0x0000ffff0000ffff; // binary: 16 zeros, 16 ones ...
     const uint64_t m32 = 0x00000000ffffffff; // binary: 32 zeros, 32 ones
     const uint64_t h01 = 0x0101010101010101;
+
+    int mg_value[6] = { 82, 337, 365, 477, 1025,  0};
+    int eg_value[6] = { 94, 281, 297, 512,  936,  0};
+    int gamephaseInc[12] = {0,1,1,2,4,0};
 
     int pawnPhase = 0;
     int knightPhase = 1;
