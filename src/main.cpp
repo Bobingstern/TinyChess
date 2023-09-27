@@ -38,7 +38,11 @@ int main() {
 
   while (std::getline(std::cin, Line)) {
     if (Line == "uci") {
-      std::cout << "id name TinyChess" << std::endl;
+      std::cout << "id name TinyChess";
+#ifndef USE_PST
+      std::cout << "-nopst";
+#endif
+      std::cout << std::endl;
       std::cout << "id author Anik Patel and Cyrus Yiu" << std::endl;
       std::cout << "uciok" << std::endl;
     } else if (Line == "quit") {
