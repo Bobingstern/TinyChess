@@ -62,9 +62,26 @@ int main() {
       if (Line.substr(3, Line.length()) == "infinite") {
         m = engine.runSearch(6, -1);
       } else {
+
         if (Line.substr(3, 9) == "movetime "){
-          m = engine.runSearchID(std::stoi(Line.substr(12, Line.length())));
+          int end = -1;
+          Line = Line.substr(12, Line.length());
+          
+          for (int i=0;i<Line.length();i++){
+            if (Line[i] == ' '){
+              end = i;
+              break;
+            }
+          }
+          int T = std::stoi(Line.substr(0, end));
+          int nodes = -1;
+          if (Line.substr(end, 6) == " nodes"){
+            nodes = std::stoi(Line.substr(end+6, Line.length()));
+            std::cout << nodes << "\n";
+          }
+          m = engine.runSearchID(T);
         }
+        
         // else if (Line.substr(3, 6) == "wtime "){
         //   int end = -1;
         //   Line = Line.substr(9, Line.length());
