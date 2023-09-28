@@ -23,10 +23,11 @@ class Engine {
     Board* board = nullptr;
     float staticEvaluation();
     
-    float alphaBeta(float alpha, float beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove);
+    float alphaBeta(float alpha, float beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left);
     float quiesce(float alpha, float beta, uint64_t attackers);
     bool badCapture(uint16_t move);
     uint16_t runSearch(int depth, int maxTime);
+    uint16_t runSearchID(int maxTime);
 
     float pieceSquareTables(int phase);
     int pstScores(uint64_t a, int &scoreA, int &scoreB, int i);

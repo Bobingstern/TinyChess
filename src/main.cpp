@@ -56,9 +56,33 @@ int main() {
     } else if (Line.substr(0, 3) == "go ") {
       uint16_t m;
       if (Line.substr(3, Line.length()) == "infinite") {
-        m = engine.runSearch(4, -1);
+        m = engine.runSearch(6, -1);
       } else {
-        m = engine.runSearch(6, std::stoi(Line.substr(12, Line.length())));
+        std::cout << Line.substr(3, 6) << "\n";
+        if (Line.substr(3, 9) == "movetime "){
+          m = engine.runSearchID(std::stoi(Line.substr(12, Line.length())));
+        }
+        // else if (Line.substr(3, 6) == "wtime "){
+        //   int end = -1;
+        //   Line = Line.substr(9, Line.length());
+        //   for (int i=0;i<Line.length();i++){
+        //     if (Line[i] == ' '){
+        //       end = i;
+        //     }
+        //   }
+        //   int wtime = std::stoi(Line.substr(0, end - 1));
+        //   end = -1;
+        //   Line = Line.substr(end, Line.length() - end);
+        //   for (int i=0;i<Line.length();i++){
+        //     if (Line[i] == ' '){
+        //       end = i;
+        //     }
+        //   }
+        //   int btime = std::stoi(Line.substr(0, end - 1));
+        //   std::cout << wtime << "\n";
+        //   std::cout << btime << "\n";
+        //   //m = engine.runSearchID(std::stoi(Line.substr(0, Line.length())));
+        // }
       }
       std::cout << "bestmove ";
       board.printMove(m);
