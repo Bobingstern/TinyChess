@@ -2,31 +2,16 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#define PAWN   0
+#define PAWN 0
 #define KNIGHT 1
 #define BISHOP 2
-#define ROOK   3
-#define QUEEN  4
-#define KING   5
+#define ROOK 3
+#define QUEEN 4
+#define KING 5
 
 /* board representation */
-#define WHITE  0
-#define BLACK  1
-
-#define WHITE_PAWN      (2*PAWN   + WHITE)
-#define BLACK_PAWN      (2*PAWN   + BLACK)
-#define WHITE_KNIGHT    (2*KNIGHT + WHITE)
-#define BLACK_KNIGHT    (2*KNIGHT + BLACK)
-#define WHITE_BISHOP    (2*BISHOP + WHITE)
-#define BLACK_BISHOP    (2*BISHOP + BLACK)
-#define WHITE_ROOK      (2*ROOK   + WHITE)
-#define BLACK_ROOK      (2*ROOK   + BLACK)
-#define WHITE_QUEEN     (2*QUEEN  + WHITE)
-#define BLACK_QUEEN     (2*QUEEN  + BLACK)
-#define WHITE_KING      (2*KING   + WHITE)
-#define BLACK_KING      (2*KING   + BLACK)
-#define EMPTY           (BLACK_KING  +  1)
-
+#define WHITE 0
+#define BLACK 1
 int Engine::hammingWeight(uint64_t x) {
   x -= (x >> 1) & m1;             // put count of each 2 bits into those 2 bits
   x = (x & m2) + ((x >> 2) & m2); // put count of each 4 bits into those 4 bits
@@ -106,146 +91,145 @@ int Engine::hammingWeight(uint64_t x) {
 //     };
 //     return mg_queen_table[ this->board->color == WHITE ? loc : 63 - loc];
 // }
-int Engine::pstScores(uint64_t a, int &mg, int &eg, int i){
-    int gamePhase = 0;
-    uint64_t cpy = a;
-    while (cpy != 0) {
-        uint64_t isolated = cpy & ((~cpy) + 1);
-        int from = 63 - __builtin_ctzll(isolated);
-        if (i == 0){
-            mg += pawnPST(from) + mg_value[i];
-            eg += egPawnPST(from) + eg_value[i];
-        }
-        if (i == 1){
-            mg += knightPST(from) + mg_value[i];
-            eg += egKnightPST(from) + eg_value[i];
-        }
-        if (i == 2){
-            mg += bishopPST(from) + mg_value[i];
-            eg += egBishopPST(from) + eg_value[i];
-        }
-        if (i == 3){
-            mg += rookPST(from) + mg_value[i];
-            eg += egRookPST(from) + eg_value[i];
-        }
-        if (i == 4){
-            mg += queenPST(from) + mg_value[i];
-            eg += egQueenPST(from) + eg_value[i];
-        }
-        if (i == 5){
-            mg += kingPST(from) + mg_value[i];
-            eg += egKingPST(from) + eg_value[i];
-        }
-        cpy &= ~isolated;
-        gamePhase ++;
+int Engine::pstScores(uint64_t a, int& mg, int& eg, int i) {
+  int gamePhase = 0;
+  uint64_t cpy = a;
+  while (cpy != 0) {
+    uint64_t isolated = cpy & ((~cpy) + 1);
+    int from = 63 - __builtin_ctzll(isolated);
+    if (i == 0) {
+      mg += pawnPST(from) + mg_value[i];
+      eg += egPawnPST(from) + eg_value[i];
     }
-    return gamePhase;
+    if (i == 1) {
+      mg += knightPST(from) + mg_value[i];
+      eg += egKnightPST(from) + eg_value[i];
+    }
+    if (i == 2) {
+      mg += bishopPST(from) + mg_value[i];
+      eg += egBishopPST(from) + eg_value[i];
+    }
+    if (i == 3) {
+      mg += rookPST(from) + mg_value[i];
+      eg += egRookPST(from) + eg_value[i];
+    }
+    if (i == 4) {
+      mg += queenPST(from) + mg_value[i];
+      eg += egQueenPST(from) + eg_value[i];
+    }
+    if (i == 5) {
+      mg += kingPST(from) + mg_value[i];
+      eg += egKingPST(from) + eg_value[i];
+    }
+    cpy &= ~isolated;
+    gamePhase++;
+  }
+  return gamePhase;
 }
-float Engine::pieceSquareTables(int phase){
-    // Pawns
-    float score = 0;
-    int whiteMG = 0;
-    int whiteEG = 0;
-    int blackMG = 0;
-    int blackEG = 0;
-    int gamePhase = 0;
-    bool currColor = board->color;
-    board->color = WHITE;
-    gamePhase += (pstScores(board->whitePawns, whiteMG, whiteEG, 0)) * gamephaseInc[0];
-    board->color = BLACK;
-    gamePhase += (pstScores(board->blackPawns, blackMG, blackEG, 0)) * gamephaseInc[0];
-    
-    board->color = WHITE;
-    gamePhase += (pstScores(board->whiteKnights, whiteMG, whiteEG, 1)) * gamephaseInc[1];
-    board->color = BLACK;
-    gamePhase += (pstScores(board->blackKnights, blackMG, blackEG, 1)) * gamephaseInc[1];
+float Engine::pieceSquareTables(int phase) {
+  // Pawns
+  float score = 0;
+  int whiteMG = 0;
+  int whiteEG = 0;
+  int blackMG = 0;
+  int blackEG = 0;
+  int gamePhase = 0;
+  bool currColor = board->color;
+  board->color = WHITE;
+  gamePhase += (pstScores(board->whitePawns, whiteMG, whiteEG, 0)) * gamephaseInc[0];
+  board->color = BLACK;
+  gamePhase += (pstScores(board->blackPawns, blackMG, blackEG, 0)) * gamephaseInc[0];
 
-    board->color = WHITE;
-    gamePhase += (pstScores(board->whiteBishops, whiteMG, whiteEG, 2)) * gamephaseInc[2];
-    board->color = BLACK;
-    gamePhase += (pstScores(board->blackBishops, blackMG, blackEG, 2)) * gamephaseInc[2];
+  board->color = WHITE;
+  gamePhase += (pstScores(board->whiteKnights, whiteMG, whiteEG, 1)) * gamephaseInc[1];
+  board->color = BLACK;
+  gamePhase += (pstScores(board->blackKnights, blackMG, blackEG, 1)) * gamephaseInc[1];
 
-    board->color = WHITE;
-    gamePhase += (pstScores(board->whiteRooks, whiteMG, whiteEG, 3)) * gamephaseInc[3];
-    board->color = BLACK;
-    gamePhase += (pstScores(board->blackRooks, blackMG, blackEG, 3)) * gamephaseInc[3];
+  board->color = WHITE;
+  gamePhase += (pstScores(board->whiteBishops, whiteMG, whiteEG, 2)) * gamephaseInc[2];
+  board->color = BLACK;
+  gamePhase += (pstScores(board->blackBishops, blackMG, blackEG, 2)) * gamephaseInc[2];
 
-    board->color = WHITE;
-    gamePhase += (pstScores(board->whiteQueens, whiteMG, whiteEG, 4)) * gamephaseInc[4];
-    board->color = BLACK;
-    gamePhase += (pstScores(board->blackQueens, blackMG, blackEG, 4)) * gamephaseInc[4];
+  board->color = WHITE;
+  gamePhase += (pstScores(board->whiteRooks, whiteMG, whiteEG, 3)) * gamephaseInc[3];
+  board->color = BLACK;
+  gamePhase += (pstScores(board->blackRooks, blackMG, blackEG, 3)) * gamephaseInc[3];
 
-    board->color = WHITE;
-    gamePhase += (pstScores(board->whiteKing, whiteMG, whiteEG, 5)) * gamephaseInc[5];
-    board->color = BLACK;
-    gamePhase += (pstScores(board->blackKing, blackMG, blackEG, 5)) * gamephaseInc[5];
-    
-    board->color = currColor;
+  board->color = WHITE;
+  gamePhase += (pstScores(board->whiteQueens, whiteMG, whiteEG, 4)) * gamephaseInc[4];
+  board->color = BLACK;
+  gamePhase += (pstScores(board->blackQueens, blackMG, blackEG, 4)) * gamephaseInc[4];
 
-    int mgScore = board->color == WHITE ? whiteMG - blackMG : blackMG - whiteMG;
-    int egScore = board->color == WHITE ? whiteEG - blackEG : blackEG - whiteEG;
-    int mgPhase = gamePhase;
-    if (mgPhase > 24) mgPhase = 24;
-    int egPhase = 24 - mgPhase;
-    return (mgScore * mgPhase + egScore * egPhase) / 24;
+  board->color = WHITE;
+  gamePhase += (pstScores(board->whiteKing, whiteMG, whiteEG, 5)) * gamephaseInc[5];
+  board->color = BLACK;
+  gamePhase += (pstScores(board->blackKing, blackMG, blackEG, 5)) * gamephaseInc[5];
+
+  board->color = currColor;
+
+  int mgScore = board->color == WHITE ? whiteMG - blackMG : blackMG - whiteMG;
+  int egScore = board->color == WHITE ? whiteEG - blackEG : blackEG - whiteEG;
+  int mgPhase = gamePhase;
+  if (mgPhase > 24)
+    mgPhase = 24;
+  int egPhase = 24 - mgPhase;
+  return (mgScore * mgPhase + egScore * egPhase) / 24;
 }
 
-float Engine::staticEvaluation(){
-    // Sided
-    int whitePawns = this->board->pawnsCount(0);
-    int blackPawns = this->board->pawnsCount(1);
+float Engine::staticEvaluation() {
+  // Sided
+  int whitePawns = this->board->pawnsCount(0);
+  int blackPawns = this->board->pawnsCount(1);
 
-    int whiteKnights = this->board->knightsCount(0);
-    int blackKnights = this->board->knightsCount(1);
+  int whiteKnights = this->board->knightsCount(0);
+  int blackKnights = this->board->knightsCount(1);
 
-    int whiteBishops = this->board->bishopsCount(0);
-    int blackBishops = this->board->bishopsCount(1);
+  int whiteBishops = this->board->bishopsCount(0);
+  int blackBishops = this->board->bishopsCount(1);
 
-    int whiteRooks = this->board->rooksCount(0);
-    int blackRooks = this->board->rooksCount(1);
+  int whiteRooks = this->board->rooksCount(0);
+  int blackRooks = this->board->rooksCount(1);
 
-    int whiteQueens = this->board->queensCount(0);
-    int blackQueens = this->board->queensCount(1);
+  int whiteQueens = this->board->queensCount(0);
+  int blackQueens = this->board->queensCount(1);
 
-    float whiteMaterial = whitePawns * PAWN_MATERIAL_VALUE
-                        + whiteKnights * KNIGHT_MATERIAL_VALUE
-                        + whiteBishops * BISHOP_MATERIAL_VALUE
-                        + whiteRooks * ROOK_MATERIAL_VALUE
-                        + whiteQueens * QUEEN_MATERIAL_VALUE;
+  float whiteMaterial = whitePawns * PAWN_MATERIAL_VALUE + whiteKnights * KNIGHT_MATERIAL_VALUE +
+                        whiteBishops * BISHOP_MATERIAL_VALUE + whiteRooks * ROOK_MATERIAL_VALUE +
+                        whiteQueens * QUEEN_MATERIAL_VALUE;
 
-    float blackMaterial = blackPawns * PAWN_MATERIAL_VALUE
-                        + blackKnights * KNIGHT_MATERIAL_VALUE
-                        + blackBishops * BISHOP_MATERIAL_VALUE
-                        + blackRooks * ROOK_MATERIAL_VALUE
-                        + blackQueens * QUEEN_MATERIAL_VALUE;
-    float MD = whiteMaterial - blackMaterial;
-    MD = MD < 0 ? -MD : MD;
-    float PA = whiteMaterial > blackMaterial ? whitePawns : blackPawns;
-    float MS = std::min(2400.0f, MD) + (MD * PA * (8000 - (whiteMaterial + blackMaterial))) / (6400 * (PA + 1));
-    MS = std::min(3100.0f, MS);
-    //return MS * (this->board->color == 1 ? -1 : 1);
-    // White has more material
-    if (whiteMaterial > blackMaterial){
-        if (this->board->color == 1){
-            MS *= -1;
-        }
+  float blackMaterial = blackPawns * PAWN_MATERIAL_VALUE + blackKnights * KNIGHT_MATERIAL_VALUE +
+                        blackBishops * BISHOP_MATERIAL_VALUE + blackRooks * ROOK_MATERIAL_VALUE +
+                        blackQueens * QUEEN_MATERIAL_VALUE;
+  float MD = whiteMaterial - blackMaterial;
+  MD = MD < 0 ? -MD : MD;
+  float PA = whiteMaterial > blackMaterial ? whitePawns : blackPawns;
+  float MS = std::min(2400.0f, MD) + (MD * PA * (8000 - (whiteMaterial + blackMaterial))) / (6400 * (PA + 1));
+  MS = std::min(3100.0f, MS);
+  // return MS * (this->board->color == 1 ? -1 : 1);
+  //  White has more material
+  if (whiteMaterial > blackMaterial) {
+    if (this->board->color == 1) {
+      MS *= -1;
     }
-    else {
-        if (this->board->color == 0){
-            MS *= -1;
-        }
+  } else {
+    if (this->board->color == 0) {
+      MS *= -1;
     }
+  }
 
+  // Calculate phase bs
+  int totalPhase = pawnPhase * 16 + knightPhase * 4 + bishopPhase * 4 + rookPhase * 4 + queenPhase * 2;
+  int phase = totalPhase;
+  phase -= (whitePawns + blackPawns) * pawnPhase;
+  phase -= (whiteKnights + blackKnights) * knightPhase;
+  phase -= (whiteBishops + blackBishops) * bishopPhase;
+  phase -= (whiteRooks + blackRooks) * rookPhase;
+  phase -= (whiteQueens + blackQueens) * queenPhase;
+  phase = (phase * 256 + (totalPhase / 2)) / totalPhase;
 
-    //Calculate phase bs
-    int totalPhase = pawnPhase*16 + knightPhase*4 + bishopPhase*4 + rookPhase*4 + queenPhase*2;
-    int phase = totalPhase;
-    phase -= (whitePawns + blackPawns) * pawnPhase;
-    phase -= (whiteKnights + blackKnights) * knightPhase;
-    phase -= (whiteBishops + blackBishops) * bishopPhase;
-    phase -= (whiteRooks + blackRooks) * rookPhase;
-    phase -= (whiteQueens + blackQueens) * queenPhase;
-    phase = (phase * 256 + (totalPhase / 2)) / totalPhase;
-
-    return pieceSquareTables(phase);
+#ifdef USE_PST
+  return pieceSquareTables(phase);
+#else
+  return MD;
+#endif
 }

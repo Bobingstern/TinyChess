@@ -38,7 +38,11 @@ int main() {
 
   while (std::getline(std::cin, Line)) {
     if (Line == "uci") {
-      std::cout << "id name TinyChess" << std::endl;
+      std::cout << "id name TinyChess";
+#ifndef USE_PST
+      std::cout << "-nopst";
+#endif
+      std::cout << std::endl;
       std::cout << "id author Anik Patel and Cyrus Yiu" << std::endl;
       std::cout << "uciok" << std::endl;
     } else if (Line == "quit") {
@@ -58,7 +62,6 @@ int main() {
       if (Line.substr(3, Line.length()) == "infinite") {
         m = engine.runSearch(6, -1);
       } else {
-        std::cout << Line.substr(3, 6) << "\n";
         if (Line.substr(3, 9) == "movetime "){
           m = engine.runSearchID(std::stoi(Line.substr(12, Line.length())));
         }
