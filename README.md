@@ -28,10 +28,9 @@ Compile different versions of TinyChess, (you can use the same version, but it w
 engines to Cutechess. (using the GUI is the easiest) You can then set up a tournament via the GUI or use the command
 line.
 
-Example command to start a SPRT with 20 games with engines `tinychess-c614481` and `tinychess-c614481-nopst` and using
-the
-Silver opening suite and concurrency of 8.
+Example command to start a SPRT with 50 games with max of 3 seconds per move and with engine configurations 
+`TinyChess0` and `TinyChess1` and using the Silver opening suite and concurrency of 5.
 
 ```cmd
-cutechess-cli -engine conf=tinychess-c614481 -engine conf=tinychess-c614481-nopst -each proto=uci tc=inf -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -games 20 -openings file=Silver_Suite.pgn format=pgn plies=5 -concurrency 8
+cutechess-cli -engine conf=TinyChess1 -engine conf=TinyChess0 -each proto=uci st=3 timemargin=100 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -games 50 -openings file=Silver_Suite.pgn format=pgn plies=5 -concurrency 5
 ```
