@@ -39,5 +39,4 @@ cutechess-cli -engine conf=TinyChess1 -engine conf=TinyChess0 -each proto=uci tc
 
 #### TinyChessTest
 
-A program is under development that will fetch the engine versions specified and run a tournament. This will be used in
-the CI pipeline to test the engine. 
+[TinyChessTest](https://github.com/UnsignedArduino/TinyChessTest) is under development.
