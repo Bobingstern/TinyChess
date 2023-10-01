@@ -321,6 +321,18 @@ uint64_t Board::combinedOccupation() {
   return whiteOccupation() | blackOccupation();
 }
 
+int Board::distance(int sq1, int sq2) {
+   int file1, file2, rank1, rank2;
+   int rankDistance, fileDistance;
+   file1 = sq1  & 7;
+   file2 = sq2  & 7;
+   rank1 = sq1 >> 3;
+   rank2 = sq2 >> 3;
+   rankDistance = std::abs(rank2 - rank1);
+   fileDistance = std::abs(file2 - file1);
+   return std::max(rankDistance, fileDistance);
+}
+
 int Board::hammingWeight(uint64_t x) {
   x -= (x >> 1) & m1;             // put count of each 2 bits into those 2 bits
   x = (x & m2) + ((x >> 2) & m2); // put count of each 4 bits into those 4 bits

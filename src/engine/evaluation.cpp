@@ -126,9 +126,9 @@ int Engine::pstScores(uint64_t a, int& mg, int& eg, int i) {
   }
   return gamePhase;
 }
-float Engine::pieceSquareTables(int phase) {
+int Engine::pieceSquareTables() {
   // Pawns
-  float score = 0;
+  int score = 0;
   int whiteMG = 0;
   int whiteEG = 0;
   int blackMG = 0;
@@ -173,10 +173,96 @@ float Engine::pieceSquareTables(int phase) {
   if (mgPhase > 24)
     mgPhase = 24;
   int egPhase = 24 - mgPhase;
+  phaseEG = egPhase;
+  phaseMG = mgPhase;
   return (mgScore * mgPhase + egScore * egPhase) / 24;
 }
 
-float Engine::staticEvaluation() {
+int Engine::getDistanceBB(uint64_t bb, int sq, int scale){
+  uint64_t cpy = bb;
+  int result = 0;
+  while (cpy != 0) {
+    uint64_t isolated = cpy & ((~cpy) + 1);
+    int from = 63 - __builtin_ctzll(isolated);
+    result += board->distance(sq, from) * scale;
+    cpy &= ~isolated;
+  }
+  return result;
+}
+
+int doubledPawn(uint64_t bb, bool up){
+  uint64_t cpy = bb;
+  int result = 0;
+  while (cpy != 0) {
+    uint64_t isolated = cpy & ((~cpy) + 1);
+    if (up){
+      if (((isolated << 8) & bb) != 0){
+        result ++;
+      }
+    }
+    else{
+      if (((isolated >> 8) & bb) != 0){
+        result ++;
+      }
+    }
+    cpy &= ~isolated;
+  }
+  return result;
+}
+
+int Engine::passedPawn(uint64_t bb, uint64_t bb2){
+  uint64_t cpy = bb;
+  bool result = true;
+  int cnt = 0;
+  while (cpy != 0) {
+    uint64_t isolated = cpy & ((~cpy) + 1);
+    int from = 63 - __builtin_ctzll(isolated);
+    if ((board->fileAttacks(from) & bb2 ) != 0){
+      result = false;
+    }
+    //board->printBitBoard(board->fileAttacks(from) & bb2);
+    // board->printBitBoard(bb2);
+    if (from % 8 != 0 && (board->fileAttacks(from - 1) & bb2 ) != 0){
+      result = false;
+    }
+    if ((from+1) % 8 != 0 && (board->fileAttacks(from + 1) & bb2 ) != 0){
+      result = false;
+    }
+    if (result){
+      int f = from % 8;
+      if (f == 0){
+        cnt += phaseMG > phaseEG ? -8 : 11;
+      }
+      if (f == 1){
+        cnt += phaseMG > phaseEG ? 16 : 42;
+      }
+      if (f == 2){
+        cnt += phaseMG > phaseEG ? 48 : 108;
+      }
+      if (f == 3){
+        cnt += phaseMG > phaseEG ? 197 : 185;
+      }
+      if (f == 4){
+        cnt += phaseMG > phaseEG ? 197 : 185;
+      }
+      if (f == 5){
+        cnt += phaseMG > phaseEG ? 48 : 108;
+      }
+      if (f == 6){
+        cnt += phaseMG > phaseEG ? 16 : 42;
+      }
+      if (f == 7){
+        cnt += phaseMG > phaseEG ? -8 : 11;
+      }
+    }
+    
+    result = true;
+    cpy &= ~isolated;
+  }
+  return cnt;
+}
+
+int Engine::staticEvaluation(uint64_t& attackers) {
   // Sided
   int whitePawns = this->board->pawnsCount(0);
   int blackPawns = this->board->pawnsCount(1);
@@ -216,19 +302,118 @@ float Engine::staticEvaluation() {
       MS *= -1;
     }
   }
-
-  // Calculate phase bs
-  int totalPhase = pawnPhase * 16 + knightPhase * 4 + bishopPhase * 4 + rookPhase * 4 + queenPhase * 2;
-  int phase = totalPhase;
-  phase -= (whitePawns + blackPawns) * pawnPhase;
-  phase -= (whiteKnights + blackKnights) * knightPhase;
-  phase -= (whiteBishops + blackBishops) * bishopPhase;
-  phase -= (whiteRooks + blackRooks) * rookPhase;
-  phase -= (whiteQueens + blackQueens) * queenPhase;
-  phase = (phase * 256 + (totalPhase / 2)) / totalPhase;
+  // Get king distance attackers
+  
 
 #ifdef USE_PST
-  return pieceSquareTables(phase);
+  int psts = pieceSquareTables();
+  int bishopPair = 0;
+  int doubledPawns = 0;
+  int passedPawns = 0;
+  // Calculate bishop pair
+  if (hammingWeight(this->board->color == WHITE ? board->whiteBishops : board->blackBishops) == 2){
+    bishopPair = 30;
+    if (phaseEG > phaseMG){
+      bishopPair = 64;
+    }
+  }
+  doubledPawns = doubledPawn(this->board->color == WHITE ? board->whitePawns : board->blackPawns, board->color) * 
+                  (phaseEG > phaseMG ? -15 : -7);
+  passedPawns = passedPawn(this->board->color == WHITE ? board->whitePawns : board->blackPawns, this->board->color == BLACK ? board->whitePawns : board->blackPawns);
+  
+  int numAttackers = hammingWeight((board->kingAttacks(board->getKing(), 63 - __builtin_ctzll(board->getKing()))) & attackers);
+  int kVal = 0;
+  if (numAttackers == 1){
+    kVal = 50;
+  }
+  if (numAttackers == 2){
+    kVal = 75;
+  }
+  if (numAttackers == 3){
+    kVal = 88;
+  }
+  if (numAttackers >= 4){
+    kVal = 96 + numAttackers;
+  }
+  // int valk = hammingWeight(board->fileAttacks(63 - __builtin_ctzll(board->getKing())) & (  board->color == WHITE ? blackRooks | blackQueens : whiteRooks | whiteQueens  ));
+  // int valk2 = hammingWeight(board->rankAttacks(63 - __builtin_ctzll(board->getKing())) & (  board->color == WHITE ? blackRooks | blackQueens : whiteRooks | whiteQueens  ));
+  // int valk3 = hammingWeight(board->fileAttacks(63 - __builtin_ctzll(board->getKing())) & (~(board->color == WHITE ? board->whiteOccupation() : board->blackOccupation())) );
+
+  int pawnShield = 0;
+  int pos = 63 - __builtin_ctzll(board->getKing());
+  if (board->color == 0 && (board->getKing() & 0b00000111ULL) != 0){
+    int w = hammingWeight(board->whitePawns & ((0b00000111ULL << 8) | (0b00000111ULL << 16)) );
+    if (w == 0){
+      pawnShield = -25;
+    }
+    if (w == 1){
+      pawnShield = -15;
+    }
+    if (w == 2){
+      pawnShield = -7;
+    }
+    if (w == 3){
+      pawnShield = 0;
+    }
+  }
+  if (board->color == 0 && (board->getKing() & 0b11100000ULL) != 0){
+    
+    int w = hammingWeight(board->whitePawns & ((0b11100000ULL << 8) | (0b11100000ULL << 16)));
+    if (w == 0){
+      pawnShield = -25;
+    }
+    if (w == 1){
+      pawnShield = -15;
+    }
+    if (w == 2){
+      pawnShield = -7;
+    }
+    if (w == 3){
+      pawnShield = 0;
+    }
+  }
+  if (board->color == 1 && pos == (board->getKing() & (0b00000111ULL << 56)) != 0){
+    int w = hammingWeight(board->blackPawns & ((0b00000111ULL << 48) | (0b00000111ULL << 40)));
+    if (w == 0){
+      pawnShield = -25;
+    }
+    if (w == 1){
+      pawnShield = -15;
+    }
+    if (w == 2){
+      pawnShield = -7;
+    }
+    if (w == 3){
+      pawnShield = 0;
+    }
+  }
+  if (board->color == 1 && pos == (board->getKing() & (0b11100000ULL << 56)) != 0){
+    int w = hammingWeight(board->whitePawns & ((0b11100000ULL << 48) | (0b11100000ULL << 40)));
+    if (w == 0){
+      pawnShield = -25;
+    }
+    if (w == 1){
+      pawnShield = -15;
+    }
+    if (w == 2){
+      pawnShield = -7;
+    }
+    if (w == 3){
+      pawnShield = 0;
+    }
+  }
+  //pawnShield -= (phaseMG / (phaseEG+1));
+  //board->printBitBoard(whiteQueens);
+  int tropism = 0;
+  tropism += 20 - getDistanceBB(board->color == 0 ? board->blackQueens : board->whiteQueens, pos, 2);
+  tropism += 10 - getDistanceBB(board->color == 0 ? board->blackRooks : board->whiteRooks, pos, 1);
+  tropism += 5 - getDistanceBB(board->color == 0 ? board->blackBishops : board->whiteBishops, pos, 0.5);
+  tropism += 5 - getDistanceBB(board->color == 0 ? board->blackKnights : board->whiteKnights, pos, 0.5);
+  //std::cout << tropism << "\n";
+  //std::cout << "MG " << phaseMG << "\n";
+  //std::cout << "EG " << phaseEG << "\n";
+  //std::cout << "pawn shileid " << pawnShield << "\n";
+  return psts;
 #else
   return MD;
 #endif

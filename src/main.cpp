@@ -31,10 +31,10 @@ int main() {
   Board board = Board();
 
   Engine engine = Engine(&board);
-
   std::string Line; // to read the command given by the GUI
-
   std::cout.setf(std::ios::unitbuf); // Make sure that the outputs are sent straight away to the GUI
+
+  
 
   while (std::getline(std::cin, Line)) {
     if (Line == "uci") {
@@ -53,10 +53,16 @@ int main() {
     } else if (Line == "ucinewgame") {
       board.readFEN("position startpos");
     }
+    else if (Line == "perft") {
+      engine.runPerft(1);
+    }
     if (Line.substr(0, 8) == "position") {
       board.readFEN(Line);
     } else if (Line == "stop") {
       return 0;
+    } else if (Line == "eval") {
+        uint64_t dum = 0;
+        std::cout << "Eval:" << engine.staticEvaluation(dum) << "\n";
     } else if (Line.substr(0, 3) == "go ") {
       uint16_t m;
       if (Line.substr(3, Line.length()) == "infinite") {
@@ -66,43 +72,40 @@ int main() {
         if (Line.substr(3, 9) == "movetime "){
           int end = -1;
           Line = Line.substr(12, Line.length());
-          
+          int T = std::stoi(Line);
+          // int nodes = -1;
+          // if (Line.substr(end, 6) == " nodes"){
+          //   nodes = std::stoi(Line.substr(end+6, Line.length()));
+          //   std::cout << nodes << "\n";
+          // }
+          m = engine.runSearchID(T);
+        }
+        
+        else if (Line.substr(3, 6) == "wtime "){
+          int end = -1;
+          Line = Line.substr(9, Line.length());
           for (int i=0;i<Line.length();i++){
             if (Line[i] == ' '){
               end = i;
               break;
             }
           }
-          int T = std::stoi(Line.substr(0, end));
-          int nodes = -1;
-          if (Line.substr(end, 6) == " nodes"){
-            nodes = std::stoi(Line.substr(end+6, Line.length()));
-            std::cout << nodes << "\n";
+          int wtime = std::stoi(Line.substr(0, end));
+          Line = Line.substr(end+1, Line.length() - end);
+          end = -1;
+          for (int i=0;i<Line.length();i++){
+            if (Line[i] == ' '){
+              end = i;
+              break;
+            }
           }
-          m = engine.runSearchID(T);
+          int btime = std::stoi(Line.substr(end, Line.length()-end));
+          // std::cout << wtime << "\n";
+          // std::cout << btime << "\n";
+          int timeLeft = board.color == WHITE ? wtime : btime;
+          timeLeft /= 20;
+          m = engine.runSearchID(timeLeft);
         }
-        
-        // else if (Line.substr(3, 6) == "wtime "){
-        //   int end = -1;
-        //   Line = Line.substr(9, Line.length());
-        //   for (int i=0;i<Line.length();i++){
-        //     if (Line[i] == ' '){
-        //       end = i;
-        //     }
-        //   }
-        //   int wtime = std::stoi(Line.substr(0, end - 1));
-        //   end = -1;
-        //   Line = Line.substr(end, Line.length() - end);
-        //   for (int i=0;i<Line.length();i++){
-        //     if (Line[i] == ' '){
-        //       end = i;
-        //     }
-        //   }
-        //   int btime = std::stoi(Line.substr(0, end - 1));
-        //   std::cout << wtime << "\n";
-        //   std::cout << btime << "\n";
-        //   //m = engine.runSearchID(std::stoi(Line.substr(0, Line.length())));
-        // }
       }
       std::cout << "bestmove ";
       board.printMove(m);
