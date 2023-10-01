@@ -22,16 +22,21 @@ will _not_ work.
 
 Run `main.exe`. The engine supports basic UCI commands. (no time control yet)
 
-### Cutechess tournaments
+### Testing
+
+#### Manually running a Cutechess tournament
 
 Compile different versions of TinyChess, (you can use the same version, but it will be quite boring) and add them as
 engines to Cutechess. (using the GUI is the easiest) You can then set up a tournament via the GUI or use the command
 line.
 
-Example command to start a SPRT with 20 games with engines `tinychess-c614481` and `tinychess-c614481-nopst` and using
-the
-Silver opening suite and concurrency of 8.
+Example command to start a SPRT with 50 games with a time control of 60 seconds and with engine configurations
+`TinyChess0` and `TinyChess1` and using the Silver opening suite and concurrency of 5.
 
 ```cmd
-cutechess-cli -engine conf=tinychess-c614481 -engine conf=tinychess-c614481-nopst -each proto=uci tc=inf -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -games 20 -openings file=Silver_Suite.pgn format=pgn plies=5 -concurrency 8
+cutechess-cli -engine conf=TinyChess1 -engine conf=TinyChess0 -each proto=uci tc=60 timemargin=100 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -games 50 -openings file=Silver_Suite.pgn format=pgn plies=5 -concurrency 5
 ```
+
+#### TinyChessTest
+
+[TinyChessTest](https://github.com/UnsignedArduino/TinyChessTest) is under development.
