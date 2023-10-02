@@ -20,7 +20,7 @@ will _not_ work.
 
 ## Usage
 
-Run `main.exe`. The engine supports basic UCI commands. (no time control yet)
+Run `main.exe`. The engine supports basic UCI commands.
 
 ### Testing
 
@@ -39,4 +39,5 @@ cutechess-cli -engine conf=TinyChess1 -engine conf=TinyChess0 -each proto=uci tc
 
 #### TinyChessTest
 
-[TinyChessTest](https://github.com/UnsignedArduino/TinyChessTest) is under development.
+[TinyChessTest](https://github.com/UnsignedArduino/TinyChessTest) is under development, visit it's repository to find 
+out how to set up the tester and run a tournament. 
