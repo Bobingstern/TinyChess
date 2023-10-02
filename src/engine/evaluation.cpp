@@ -307,6 +307,8 @@ int Engine::staticEvaluation(uint64_t& attackers) {
 
 #ifdef USE_PST
   int psts = pieceSquareTables();
+  //153.1 +/- 38.2 ELO
+  
   int pawnShield = 0;
   int pos = 63 - __builtin_ctzll(board->getKing());
   if (board->color == 0 && (board->getKing() & 0b00000111ULL) != 0){
@@ -373,9 +375,10 @@ int Engine::staticEvaluation(uint64_t& attackers) {
   
   // King saftey
   int kingDanger = 0;
-  kingDanger -= 87 * ( board->color == WHITE ? board->blackQueens == 0 : board->whiteQueens == 0);
+  kingDanger -= 8 * ( board->color == WHITE ? board->blackQueens == 0 : board->whiteQueens == 0);
+  // 63.2 +/- 46.3 ELO
 
-  return psts;
+  return psts - kingDanger;
 #else
   return MD;
 #endif
