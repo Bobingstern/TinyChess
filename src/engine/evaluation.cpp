@@ -307,38 +307,6 @@ int Engine::staticEvaluation(uint64_t& attackers) {
 
 #ifdef USE_PST
   int psts = pieceSquareTables();
-  int bishopPair = 0;
-  int doubledPawns = 0;
-  int passedPawns = 0;
-  // Calculate bishop pair
-  if (hammingWeight(this->board->color == WHITE ? board->whiteBishops : board->blackBishops) == 2){
-    bishopPair = 30;
-    if (phaseEG > phaseMG){
-      bishopPair = 64;
-    }
-  }
-  doubledPawns = doubledPawn(this->board->color == WHITE ? board->whitePawns : board->blackPawns, board->color) * 
-                  (phaseEG > phaseMG ? -15 : -7);
-  passedPawns = passedPawn(this->board->color == WHITE ? board->whitePawns : board->blackPawns, this->board->color == BLACK ? board->whitePawns : board->blackPawns);
-  
-  int numAttackers = hammingWeight((board->kingAttacks(board->getKing(), 63 - __builtin_ctzll(board->getKing()))) & attackers);
-  int kVal = 0;
-  if (numAttackers == 1){
-    kVal = 50;
-  }
-  if (numAttackers == 2){
-    kVal = 75;
-  }
-  if (numAttackers == 3){
-    kVal = 88;
-  }
-  if (numAttackers >= 4){
-    kVal = 96 + numAttackers;
-  }
-  // int valk = hammingWeight(board->fileAttacks(63 - __builtin_ctzll(board->getKing())) & (  board->color == WHITE ? blackRooks | blackQueens : whiteRooks | whiteQueens  ));
-  // int valk2 = hammingWeight(board->rankAttacks(63 - __builtin_ctzll(board->getKing())) & (  board->color == WHITE ? blackRooks | blackQueens : whiteRooks | whiteQueens  ));
-  // int valk3 = hammingWeight(board->fileAttacks(63 - __builtin_ctzll(board->getKing())) & (~(board->color == WHITE ? board->whiteOccupation() : board->blackOccupation())) );
-
   int pawnShield = 0;
   int pos = 63 - __builtin_ctzll(board->getKing());
   if (board->color == 0 && (board->getKing() & 0b00000111ULL) != 0){
@@ -402,18 +370,12 @@ int Engine::staticEvaluation(uint64_t& attackers) {
       pawnShield = 0;
     }
   }
-  //pawnShield -= (phaseMG / (phaseEG+1));
-  //board->printBitBoard(whiteQueens);
-  int tropism = 0;
-  tropism += 40 - getDistanceBB(board->color == 0 ? board->blackQueens : board->whiteQueens, pos, 4);
-  tropism += 20 - getDistanceBB(board->color == 0 ? board->blackRooks : board->whiteRooks, pos, 2);
-  tropism += 10 - getDistanceBB(board->color == 0 ? board->blackBishops : board->whiteBishops, pos, 0.5);
-  tropism += 5 - getDistanceBB(board->color == 0 ? board->blackKnights : board->whiteKnights, pos, 0.5);
-  //std::cout << tropism << "\n";
-  //std::cout << "MG " << phaseMG << "\n";
-  //std::cout << "EG " << phaseEG << "\n";
-  //std::cout << "pawn shileid " << pawnShield << "\n";
-  return psts - tropism;
+  
+  // King saftey
+  int kingDanger = 0;
+  kingDanger -= 87 * ( board->color == WHITE ? board->blackQueens == 0 : board->whiteQueens == 0);
+
+  return psts;
 #else
   return MD;
 #endif

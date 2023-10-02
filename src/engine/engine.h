@@ -33,23 +33,24 @@ class Engine {
     int pieceSquareTables();
     int pstScores(uint64_t a, int& scoreA, int& scoreB, int i);
     int passedPawn(uint64_t bb, uint64_t bb2);
-    int16_t pawnPST(int loc);
-    int16_t egPawnPST(int loc);
+    
+    int8_t pawnPST(int loc);
+    int8_t egPawnPST(int loc);
 
-    int16_t rookPST(int loc);
-    int16_t egRookPST(int loc);
+    int8_t rookPST(int loc);
+    int8_t egRookPST(int loc);
 
-    int16_t knightPST(int loc);
-    int16_t egKnightPST(int loc);
+    int8_t knightPST(int loc);
+    int8_t egKnightPST(int loc);
 
-    int16_t bishopPST(int loc);
-    int16_t egBishopPST(int loc);
+    int8_t bishopPST(int loc);
+    int8_t egBishopPST(int loc);
 
-    int16_t queenPST(int loc);
-    int16_t egQueenPST(int loc);
+    int8_t queenPST(int loc);
+    int8_t egQueenPST(int loc);
 
-    int16_t kingPST(int loc);
-    int16_t egKingPST(int loc);
+    int8_t kingPST(int loc);
+    int8_t egKingPST(int loc);
 
     std::clock_t startClock;
     int maxTime = -1;

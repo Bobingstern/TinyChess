@@ -208,7 +208,7 @@ int Engine::quiesce(int alpha, int beta, uint64_t attackers, int &totalNodes){
       continue;
     }
     uint8_t flag = (0b1111000000000000 & moves[i]) >> 12;
-    if (flag != 0b0100){
+    if (flag != 0b0100 && flag != 0b1100 && flag != 0b1101 &&  flag != 0b1110 && flag != 0b1111 && flag != 0b0101){
       this->board->unmakeMove(moves[i]);
       continue;
     }
