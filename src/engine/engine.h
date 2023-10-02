@@ -58,7 +58,7 @@ class Engine {
 
     int partition(uint16_t arr[], int start, int end);
     void quickSort(uint16_t arr[], int start, int end);
-    bool mvvlvaOrder(uint16_t m);
+    int mvvlvaOrder(uint16_t m);
 
   private:
     const uint64_t m1 = 0x5555555555555555;  // binary: 0101...
@@ -69,12 +69,12 @@ class Engine {
     const uint64_t m32 = 0x00000000ffffffff; // binary: 32 zeros, 32 ones
     const uint64_t h01 = 0x0101010101010101;
 
-    int mg_value[6] = {85, 389, 409, 527, 1137, 0};
-    int eg_value[6] = {103, 250, 281, 476, 880, 0};
+    int mg_value[6] = {82, 337, 365, 477, 1025, 0};
+    int eg_value[6] = {94, 281, 297, 512, 936, 0};
     int gamephaseInc[12] = {0, 1, 1, 2, 4, 0};
-
-    int16_t matValsMg[6] = {0, 1137, 527, 409, 389, 85};
-    int16_t matValsEg[6] = {0, 880, 476, 281, 250, 103};
+    
+    // int mg_value[6] = {85, 389, 409, 527, 1137, 0};
+    // int eg_value[6] = {103, 250, 281, 476, 880, 0};
 
     uint64_t perft(int depth, uint64_t attackers, int originalDepth);
     int hammingWeight(uint64_t a);

@@ -405,15 +405,15 @@ int Engine::staticEvaluation(uint64_t& attackers) {
   //pawnShield -= (phaseMG / (phaseEG+1));
   //board->printBitBoard(whiteQueens);
   int tropism = 0;
-  tropism += 20 - getDistanceBB(board->color == 0 ? board->blackQueens : board->whiteQueens, pos, 2);
-  tropism += 10 - getDistanceBB(board->color == 0 ? board->blackRooks : board->whiteRooks, pos, 1);
-  tropism += 5 - getDistanceBB(board->color == 0 ? board->blackBishops : board->whiteBishops, pos, 0.5);
+  tropism += 40 - getDistanceBB(board->color == 0 ? board->blackQueens : board->whiteQueens, pos, 4);
+  tropism += 20 - getDistanceBB(board->color == 0 ? board->blackRooks : board->whiteRooks, pos, 2);
+  tropism += 10 - getDistanceBB(board->color == 0 ? board->blackBishops : board->whiteBishops, pos, 0.5);
   tropism += 5 - getDistanceBB(board->color == 0 ? board->blackKnights : board->whiteKnights, pos, 0.5);
   //std::cout << tropism << "\n";
   //std::cout << "MG " << phaseMG << "\n";
   //std::cout << "EG " << phaseEG << "\n";
   //std::cout << "pawn shileid " << pawnShield << "\n";
-  return psts;
+  return psts - tropism;
 #else
   return MD;
 #endif

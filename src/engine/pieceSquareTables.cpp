@@ -61,8 +61,19 @@ int16_t Engine::pawnPST(int loc) {
   const int square_index = this->board->color == WHITE ? loc : loc ^ 56;
 
   const int8_t fileBonus[] = { -45,  -13,  -14,   -2,    7,    9,   36,  -14};
-  const int8_t rankBonus[] = {   0,    5,    0,   -1,    5,   13,   30,    0};
+  const int8_t rankBonus[] = {   0,   -15,  -1,  25,    30,   65,  127,    0};
   return fileBonus[square_index % 8] + rankBonus[(int)(square_index / 8 )];
+  // int8_t mg_pawn_table[64] = {
+  //     0,   0,   0,   0,   0,   0,  0,   0,
+  //    98, 127,  61,  95,  68, 126, 34, -11,
+  //    -6,   7,  26,  31,  65,  56, 25, -20,
+  //   -14,  13,   6,  21,  23,  12, 17, -23,
+  //   -27,  -2,  -5,  12,  17,   6, 10, -25,
+  //   -26,  -4,  -4, -10,   3,   3, 33, -12,
+  //   -35,  -1, -20, -23, -15,  24, 38, -22,
+  //     0,   0,   0,   0,   0,   0,  0,   0,
+  // };
+  // return mg_pawn_table[square_index];
 }
 
 int16_t Engine::egPawnPST(int loc) {
