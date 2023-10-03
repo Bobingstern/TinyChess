@@ -1,6 +1,6 @@
 # TinyChess
 
-A small chess engine in C++.
+UCI chess engine designed to run with low RAM
 
 ## Install
 
