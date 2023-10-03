@@ -65,10 +65,11 @@ int main() {
         std::cout << "Eval:" << engine.staticEvaluation(dum) << "\n";
     } else if (Line.substr(0, 3) == "go ") {
       uint16_t m;
+      int sc = 0;
       if (Line.substr(3, Line.length()) == "infinite") {
         m = engine.runSearch(4, -1);
       } else {
-
+        
         if (Line.substr(3, 9) == "movetime "){
           int end = -1;
           Line = Line.substr(12, Line.length());
@@ -78,7 +79,7 @@ int main() {
           //   nodes = std::stoi(Line.substr(end+6, Line.length()));
           //   std::cout << nodes << "\n";
           // }
-          m = engine.runSearchID(T);
+          m = engine.runSearchID(T, sc);
         }
         
         else if (Line.substr(3, 6) == "wtime "){
@@ -104,9 +105,10 @@ int main() {
           // std::cout << btime << "\n";
           int timeLeft = board.color == WHITE ? wtime : btime;
           timeLeft /= 20;
-          m = engine.runSearchID(timeLeft);
+          m = engine.runSearchID(timeLeft, sc);
         }
       }
+      std::cout << "info score cp " << sc << "\n";
       std::cout << "bestmove ";
       board.printMove(m);
       std::cout << "\n";

@@ -264,50 +264,12 @@ int Engine::passedPawn(uint64_t bb, uint64_t bb2){
 
 int Engine::staticEvaluation(uint64_t& attackers) {
   // Sided
-  int whitePawns = this->board->pawnsCount(0);
-  int blackPawns = this->board->pawnsCount(1);
-
-  int whiteKnights = this->board->knightsCount(0);
-  int blackKnights = this->board->knightsCount(1);
-
-  int whiteBishops = this->board->bishopsCount(0);
-  int blackBishops = this->board->bishopsCount(1);
-
-  int whiteRooks = this->board->rooksCount(0);
-  int blackRooks = this->board->rooksCount(1);
-
-  int whiteQueens = this->board->queensCount(0);
-  int blackQueens = this->board->queensCount(1);
-
-  float whiteMaterial = whitePawns * PAWN_MATERIAL_VALUE + whiteKnights * KNIGHT_MATERIAL_VALUE +
-                        whiteBishops * BISHOP_MATERIAL_VALUE + whiteRooks * ROOK_MATERIAL_VALUE +
-                        whiteQueens * QUEEN_MATERIAL_VALUE;
-
-  float blackMaterial = blackPawns * PAWN_MATERIAL_VALUE + blackKnights * KNIGHT_MATERIAL_VALUE +
-                        blackBishops * BISHOP_MATERIAL_VALUE + blackRooks * ROOK_MATERIAL_VALUE +
-                        blackQueens * QUEEN_MATERIAL_VALUE;
-  float MD = whiteMaterial - blackMaterial;
-  MD = MD < 0 ? -MD : MD;
-  float PA = whiteMaterial > blackMaterial ? whitePawns : blackPawns;
-  float MS = std::min(2400.0f, MD) + (MD * PA * (8000 - (whiteMaterial + blackMaterial))) / (6400 * (PA + 1));
-  MS = std::min(3100.0f, MS);
-  // return MS * (this->board->color == 1 ? -1 : 1);
-  //  White has more material
-  if (whiteMaterial > blackMaterial) {
-    if (this->board->color == 1) {
-      MS *= -1;
-    }
-  } else {
-    if (this->board->color == 0) {
-      MS *= -1;
-    }
-  }
+  
   // Get king distance attackers
   
 
 #ifdef USE_PST
   int psts = pieceSquareTables();
-  //153.1 +/- 38.2 ELO
   
   int pawnShield = 0;
   int pos = 63 - __builtin_ctzll(board->getKing());
@@ -375,11 +337,68 @@ int Engine::staticEvaluation(uint64_t& attackers) {
   
   // King saftey
   int kingDanger = 0;
-  kingDanger -= 8 * ( board->color == WHITE ? board->blackQueens == 0 : board->whiteQueens == 0);
-  // 63.2 +/- 46.3 ELO
+  //kingDanger -= 8 * ( board->color == WHITE ? board->blackQueens == 0 : board->whiteQueens == 0);
+  //kingDanger += hammingWeight( board->kingAttacks(board->getKing(), 63 - __builtin_ctzll(board->getKing())) & attackers) * 3;
+  uint64_t kingArea = board->kingAttacks(board->getKing(), 63 - __builtin_ctzll(board->getKing()));
+  int knightScore = hammingWeight(kingArea & board->knightAttackers);
+  int bishopScore = hammingWeight(kingArea & board->bishopAttackers);
+  int rookScore = hammingWeight(kingArea & board->rookAttackers);
+  int queenScore = hammingWeight(kingArea & board->queenAttackers);
+  int valueOfAttacks = knightScore * 20 + bishopScore * 20 + rookScore * 40 + queenScore * 80;
+  int8_t attackWeight[8] = {0, 0, 50, 75, 88, 94, 97, 99};
+  kingDanger += valueOfAttacks * (attackWeight[hammingWeight(kingArea & attackers)]) / 100;
+  //board->printBitBoard(kingArea);
+  // if (board->color == 0){
+  //   board->printBitBoard(board->queenAttackers);
+  //   std::cout << "Q " << queenScore << "\n";
+  //   std::cout << "R " << rookScore << "\n";
+  //   std::cout << "B " << bishopScore << "\n";
+  //   std::cout << "K " << knightScore << "\n";
+  //   std::cout << "V " << valueOfAttacks << "\n";
+  //   std::cout << "KI " << kingDanger << "\n";
+  //   std::cout << "PST " << psts << "\n";
+  // }
 
-  return psts - kingDanger;
+  return psts;
 #else
+    int whitePawns = this->board->pawnsCount(0);
+    int blackPawns = this->board->pawnsCount(1);
+
+    int whiteKnights = this->board->knightsCount(0);
+    int blackKnights = this->board->knightsCount(1);
+
+    int whiteBishops = this->board->bishopsCount(0);
+    int blackBishops = this->board->bishopsCount(1);
+
+    int whiteRooks = this->board->rooksCount(0);
+    int blackRooks = this->board->rooksCount(1);
+
+    int whiteQueens = this->board->queensCount(0);
+    int blackQueens = this->board->queensCount(1);
+
+    float whiteMaterial = whitePawns * PAWN_MATERIAL_VALUE + whiteKnights * KNIGHT_MATERIAL_VALUE +
+                          whiteBishops * BISHOP_MATERIAL_VALUE + whiteRooks * ROOK_MATERIAL_VALUE +
+                          whiteQueens * QUEEN_MATERIAL_VALUE;
+
+    float blackMaterial = blackPawns * PAWN_MATERIAL_VALUE + blackKnights * KNIGHT_MATERIAL_VALUE +
+                          blackBishops * BISHOP_MATERIAL_VALUE + blackRooks * ROOK_MATERIAL_VALUE +
+                          blackQueens * QUEEN_MATERIAL_VALUE;
+    float MD = whiteMaterial - blackMaterial;
+    MD = MD < 0 ? -MD : MD;
+    float PA = whiteMaterial > blackMaterial ? whitePawns : blackPawns;
+    float MS = std::min(2400.0f, MD) + (MD * PA * (8000 - (whiteMaterial + blackMaterial))) / (6400 * (PA + 1));
+    MS = std::min(3100.0f, MS);
+    // return MS * (this->board->color == 1 ? -1 : 1);
+    //  White has more material
+    if (whiteMaterial > blackMaterial) {
+      if (this->board->color == 1) {
+        MS *= -1;
+      }
+    } else {
+      if (this->board->color == 0) {
+        MS *= -1;
+      }
+    }
   return MD;
 #endif
 }

@@ -222,7 +222,7 @@ int Engine::quiesce(int alpha, int beta, uint64_t attackers, int &totalNodes){
   return alpha;
 }
 
-uint16_t Engine::runSearchID(int m){
+uint16_t Engine::runSearchID(int m, int& score){
   uint16_t runningBest;
   startClock = std::clock();
   int totalNodes = 0;
@@ -240,9 +240,10 @@ uint16_t Engine::runSearchID(int m){
     bool done = false;
     maxTime = m;
     totalNodes = 0;
-    alphaBeta(-100000, 100000, board->getAttackers(), i, i, bestMove, done, totalNodes, false);
+    int s = alphaBeta(-100000, 100000, board->getAttackers(), i, i, bestMove, done, totalNodes, false);
     if (i == 1){
       runningBest = bestMove;
+      score = s;
     }
     if (done){
       break;
@@ -254,6 +255,20 @@ uint16_t Engine::runSearchID(int m){
   }
   //std::cout << "Searched: " << actualTotalNodes << "\n";
   return runningBest;
+}
+
+
+int Engine::getEval() {
+  board->resetAttackers();
+  uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks = 0;
+  uint16_t moves[218];
+  board->color = !board->color;
+  int total =
+      board->generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
+  board->color = !board->color;
+  uint64_t T = board->getAttackers();
+  board->printBitBoard(board->queenAttackers);
+  return staticEvaluation(T);
 }
 
 uint16_t Engine::runSearch(int depth, int m) {

@@ -134,6 +134,13 @@ class Board {
     uint64_t rookAttacks(uint8_t from);
     uint64_t bishopAttacks(uint8_t from);
     uint64_t knightAttacks(uint64_t isolated, uint8_t from);
+
+    uint64_t pawnAttackers;
+    uint64_t rookAttackers;
+    uint64_t knightAttackers;
+    uint64_t bishopAttackers;
+    uint64_t queenAttackers;
+    uint64_t kingAttackers;
   private:
     void sliceReAdd();
     // History
@@ -152,12 +159,7 @@ class Board {
     
     
 
-    uint64_t pawnAttackers;
-    uint64_t rookAttackers;
-    uint64_t knightAttackers;
-    uint64_t bishopAttackers;
-    uint64_t queenAttackers;
-    uint64_t kingAttackers;
+    
 
     // Castling flags
     bool flagWhiteKingsideCastle = 1; // 1 means it can castle

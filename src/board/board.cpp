@@ -79,7 +79,16 @@ Board::Board() {
   this->bitboards[BB_BLACK_QUEENS] = &this->blackQueens;
   this->bitboards[BB_BLACK_KING] = &this->blackKing;
 
+  pawnAttackers = 0ULL;
+  rookAttackers = 0ULL;
+  knightAttackers = 0ULL;
+  bishopAttackers = 0ULL;
+  queenAttackers = 0ULL;
+  kingAttackers = 0ULL;
+
   this->color = WHITE;
+
+
 }
 
 Board::~Board() {

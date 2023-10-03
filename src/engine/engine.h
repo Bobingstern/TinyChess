@@ -28,12 +28,13 @@ class Engine {
     int quiesce(int alpha, int beta, uint64_t attackers, int &totalNodes);
     bool badCapture(uint16_t move);
     uint16_t runSearch(int depth, int maxTime);
-    uint16_t runSearchID(int maxTime);
+    uint16_t runSearchID(int maxTime, int& score);
+    int getEval();
 
     int pieceSquareTables();
     int pstScores(uint64_t a, int& scoreA, int& scoreB, int i);
     int passedPawn(uint64_t bb, uint64_t bb2);
-    
+
     int8_t pawnPST(int loc);
     int8_t egPawnPST(int loc);
 
