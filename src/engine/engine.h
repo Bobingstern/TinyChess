@@ -29,7 +29,7 @@ class Engine {
     int quiesce(int alpha, int beta, uint64_t attackers, int &totalNodes);
     bool badCapture(uint16_t move);
     uint16_t runSearch(int depth, int maxTime);
-    uint16_t runSearchID(int maxTime, int& score);
+    uint16_t runSearchID(int maxTime, int& score, int& nodes);
     int getEval();
     int32_t packScore(int16_t mg, int16_t eg);
     int16_t unpack_mg(int32_t packed);

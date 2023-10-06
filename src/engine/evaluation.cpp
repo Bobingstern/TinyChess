@@ -328,23 +328,37 @@ int Engine::staticEvaluation(uint64_t& attackers) {
   //Rook Mobility
   uint64_t cpy = board->color == WHITE ? board->whiteRooks : board->blackRooks;
   
-  // int8_t bishopMobilityMG[14] = {-47, -20, 14, 29, 39, 53, 53, 60, 62, 69, 78, 83, 91, 96};
-  // int8_t rookMobilityMG[15] = {-60, 24, 0, 3, 4, 14, 20, 30, 41, 41, 41, 45, 57, 58, 67};;
-  // //int8_t bishopMobilityMG[14] = {-50,-15,  9, 16, 22, 25, 26, 27, 25, 30, 40, 51, 55, 65};
-  // while (cpy != 0) {
-  //   uint64_t isolatedRook = cpy & ((~cpy) + 1);
-  //   uint8_t from = 63 - __builtin_ctzll(isolatedRook);
-  //   uint64_t attacks = board->rookAttacks(from);
-  //   mgScore += rookMobilityMG[hammingWeight(attacks)];
-  //   //egScore += rookMobilityEG[hammingWeight(attacks)];
-  //   //flankDefense += hammingWeight(attacks & kingFlank);
-  //   cpy &= ~isolatedRook;
-  // }
-  
- 
+  // int8_t rookMobilityMG[15] = {-94, -107, -91, -83, -85, -83, -89, -85, -80, -74, -71, -72, -69, -60, -40};
+  // int8_t rookMobilityEG[15] = {-78/2, 135/2, 169/2, 174/2, 198/2, 207/2, 218/2, 219/2, 224/2, 228/2, 231/2, 236/2, 238/2, 243/2, 235/2};
+
+  // ~3 elo gain
+  while (cpy != 0) {
+    uint64_t isolatedRook = cpy & ((~cpy) + 1);
+    uint8_t from = 63 - __builtin_ctzll(isolatedRook);
+    uint64_t attacks = board->rookAttacks(from);
+    // mgScore += rookMobilityMG[hammingWeight(attacks)];
+    // egScore += rookMobilityEG[hammingWeight(attacks)] * 2;
+    uint64_t file = (0x101010101010101ULL << (uint8_t)(7 - (from % 8)));
+    if (!(file & (board->color == WHITE ? board->whitePawns : board->blackPawns))){
+      if (!(file & (board->color == BLACK ? board->whitePawns : board->blackPawns))){
+        mgScore += 28;
+        egScore += 15;
+      }
+    }
+    cpy &= ~isolatedRook;
+  }
+  if (hammingWeight(board->color == WHITE ? board->whiteBishops : board->blackBishops) >= 2){
+    mgScore += 22;
+    egScore += 87;
+  }
+  if (hammingWeight(board->color == BLACK ? board->whiteBishops : board->blackBishops) >= 2){
+    mgScore -= 22;
+    egScore -= 87;
+  }
+  //--
   
   score = (mgScore * phaseMG + egScore * phaseEG) / 24;
-  return score;
+  return 20 + score;
 #else
     int whitePawns = this->board->pawnsCount(0);
     int blackPawns = this->board->pawnsCount(1);

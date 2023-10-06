@@ -292,7 +292,7 @@ int Engine::quiesce(int alpha, int beta, uint64_t attackers, int &totalNodes){
   return alpha;
 }
 
-uint16_t Engine::runSearchID(int m, int& score){
+uint16_t Engine::runSearchID(int m, int& score, int& nodeCount){
   uint16_t runningBest;
   startClock = std::clock();
   int totalNodes = 0;
@@ -326,7 +326,8 @@ uint16_t Engine::runSearchID(int m, int& score){
       runningBest = bestMove;
     }
   }
-  std::cout << "Searched: " << actualTotalNodes << "\n";
+  //std::cout << "Searched: " << actualTotalNodes << "\n";
+  nodeCount = actualTotalNodes;
   return runningBest;
 }
 
