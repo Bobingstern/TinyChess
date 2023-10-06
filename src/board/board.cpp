@@ -47,7 +47,7 @@ Board::Board() {
   this->whiteKing = 0x000000000000008ULL;
   this->blackKing = 0x0800000000000000ULL;
   
-
+  
   //this->blackRooks = 0;
   //this->whiteRooks = 0;
   //this->whiteKnights <<= 17;

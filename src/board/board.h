@@ -141,6 +141,8 @@ class Board {
     uint64_t bishopAttackers;
     uint64_t queenAttackers;
     uint64_t kingAttackers;
+
+    uint64_t attackHQ(uint64_t mask, uint64_t isolated, uint8_t from);
   private:
     void sliceReAdd();
     // History
@@ -154,7 +156,7 @@ class Board {
     uint64_t rotateAnti90(uint64_t n);
 
     uint64_t obstructionDifference(uint8_t from, uint64_t ray);
-    uint64_t attackHQ(uint64_t mask, uint64_t isolated, uint8_t from);
+    
 
     
     

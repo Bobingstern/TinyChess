@@ -25,15 +25,19 @@ class Engine {
     int staticEvaluation(uint64_t& attackers);
     
     int alphaBeta(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull);
+    int pvSearch(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull);
     int quiesce(int alpha, int beta, uint64_t attackers, int &totalNodes);
     bool badCapture(uint16_t move);
     uint16_t runSearch(int depth, int maxTime);
     uint16_t runSearchID(int maxTime, int& score);
     int getEval();
+    int32_t packScore(int16_t mg, int16_t eg);
+    int16_t unpack_mg(int32_t packed);
+    int16_t unpack_eg(int32_t packed);
 
-    int pieceSquareTables();
+    int pieceSquareTables(int &mgScore, int &egScore);
     int pstScores(uint64_t a, int& scoreA, int& scoreB, int i);
-    int passedPawn(uint64_t bb, uint64_t bb2);
+    int passedPawn(uint64_t bb, uint64_t bb2, int& mgScore, int& egScore);
 
     int8_t pawnPST(int loc);
     int8_t egPawnPST(int loc);
@@ -81,4 +85,5 @@ class Engine {
     uint64_t perft(int depth, uint64_t attackers, int originalDepth);
     int hammingWeight(uint64_t a);
     int getDistanceBB(uint64_t bb, int sq, int scale);
+    int doubledPawn(int& mg, int& eg);
 };

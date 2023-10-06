@@ -467,10 +467,21 @@ uint64_t Board::bitReverse(uint64_t b) {
 // }
 
 // Obstruction Difference
+// uint64_t Board::obstructionDifferenceSus(uint64_t isol, uint64_t ray) {
+//   uint64_t lower = (ray ^ isol) & (isol - 1);
+//   uint64_t upper = (ray ^ isol) & (0xFFFFFFFFFFFFFFFF << (63 - from));
+//   uint64_t linemaskEx = lower | upper;
+//   lower &= combinedOccupation();
+//   upper &= combinedOccupation();
+//   uint64_t ms1B = 0x8000000000000000ULL >> __builtin_clzll(lower | 1);
+//   uint64_t odiff = upper ^ (upper - ms1B);
+//   return odiff & linemaskEx;
+// }
 
 uint64_t Board::obstructionDifference(uint8_t from, uint64_t ray) {
-  uint64_t lower = (ray ^ (1ull << (63 - from))) & ((1ull << (63 - from)) - 1);
-  uint64_t upper = (ray ^ (1ull << (63 - from))) & (0xFFFFFFFFFFFFFFFF << (63 - from));
+  uint64_t isol = 1ull << (63 - from);
+  uint64_t lower = (ray ^ isol) & ((1ull << (63 - from)) - 1);
+  uint64_t upper = (ray ^ isol) & (0xFFFFFFFFFFFFFFFF << (63 - from));
   uint64_t linemaskEx = lower | upper;
   lower &= combinedOccupation();
   upper &= combinedOccupation();
@@ -479,8 +490,18 @@ uint64_t Board::obstructionDifference(uint8_t from, uint64_t ray) {
   return odiff & linemaskEx;
 }
 
+uint64_t Board::flipVertical(uint64_t x) {
+    return  ( (x << 56)                           ) |
+            ( (x << 40) & (0x00ff000000000000) ) |
+            ( (x << 24) & (0x0000ff0000000000) ) |
+            ( (x <<  8) & (0x000000ff00000000) ) |
+            ( (x >>  8) & (0x00000000ff000000) ) |
+            ( (x >> 24) & (0x0000000000ff0000) ) |
+            ( (x >> 40) & (0x000000000000ff00) ) |
+            ( (x >> 56) );
+}
 uint64_t Board::attackHQ(uint64_t mask, uint64_t isolated, uint8_t from) {
   uint64_t o = combinedOccupation() & mask;
   uint64_t r = bitReverse(o);
-  return ((o - isolated) ^ bitReverse(r - (1ULL << (from ^ 56)))) & mask;
+  return ((o - isolated) ^ bitReverse(r - ( flipVertical(isolated) ))) & mask;
 }
