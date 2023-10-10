@@ -90,10 +90,11 @@ void Engine::quickSort(uint16_t arr[], int start, int end)
     quickSort(arr, start, p - 1);
     quickSort(arr, p + 1, end);
 }
-int Engine::pvSearch(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull){
+
+int Engine::zwSearch(int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull){
   totalNodes ++;
   if (depthleft == 0) {
-    float ev = quiesce(alpha, beta, attackers, totalNodes);
+    float ev = quiesce(beta-1, beta, attackers, totalNodes);
     return ev;
   }
   if ((maxTime != -1 && (std::clock() - startClock) >= maxTime - maxTime*0.05)){
@@ -101,6 +102,64 @@ int Engine::pvSearch(int alpha, int beta, uint64_t attackers, int depthleft, int
     return 0;
   }
   
+  uint16_t moves[218];
+  this->board->resetAttackers();
+  uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;int total = this->board->generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
+  quickSort(moves, 0, total-1);
+  int score = -10000;
+  bool noLegal = true;
+  //board->printBitBoard( board->kingAttacks(board->blackKing, 63 - __builtin_ctzll(board->blackKing) ) );
+  for (int i = 0; i < total; i++) {
+    this->board->setAttackers(pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
+    uint64_t isolated = this->board->getKing();
+    bool check = (attackers & isolated) != 0;
+    this->board->makeMove(moves[i]);
+    uint64_t a = this->board->getAttackers();
+    if (!this->board->isLegal(attackers, check)) {
+      this->board->unmakeMove(moves[i]);
+      continue;
+    }
+    noLegal = false;
+    // Do stuff here
+    score = -zwSearch(1-beta, a, depthleft-1, originalDepth, bestMove, left, totalNodes, false);
+    //--
+    this->board->unmakeMove(moves[i]);
+    if( score >= beta ){
+        return beta;
+    }
+  }
+  if (noLegal && (attackers & board->getKing()) != 0){
+    return -100000 + (originalDepth - depthleft); // Crude and dumb
+  }
+  if (noLegal){
+    //std::cout << alpha << "\n";
+    return 0;
+  }
+  
+  return beta-1;
+}
+
+int Engine::pvSearch(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull){
+  totalNodes ++;
+  if (depthleft == 0) {
+    float ev = 0;
+    if ((board->getKing() & attackers) == 0){
+      ev = quiesce(alpha, beta, attackers, totalNodes);
+      return ev;
+    }
+    depthleft = 1;
+  }
+  if ((maxTime != -1 && (std::clock() - startClock) >= maxTime - maxTime*0.05)){
+    left = true;
+    return 0;
+  }
+  // RFP
+  // if ((board->getKing() & attackers) == 0 && depthleft <= 3 && beta-alpha <= 1){
+  //   float eval = staticEvaluation(attackers);
+  //   if (eval - depthleft * 100 >= beta){
+  //     return eval;
+  //   }
+  // }
   uint16_t moves[218];
   this->board->resetAttackers();
   uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;int total = this->board->generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
@@ -126,13 +185,17 @@ int Engine::pvSearch(int alpha, int beta, uint64_t attackers, int depthleft, int
       bestMove = moves[i];
     }
     noLegal = false;
+    uint16_t nullBestMove = 0;
     // Do stuff here
+    // if (check){
+    //   depthleft ++;
+    // }
     if (bSearchPv){
-      score = -pvSearch(-beta, -alpha, a, depthleft-1, originalDepth, bestMove, left, totalNodes, false);
+      score = -pvSearch(-beta, -alpha, a, depthleft-1, originalDepth, nullBestMove, left, totalNodes, false);
     } else{
-      score = -pvSearch(-alpha-1, -alpha, a, depthleft-1, originalDepth, bestMove, left, totalNodes, false);
+      score = -zwSearch(-alpha, a, depthleft-1, originalDepth, nullBestMove, left, totalNodes, false);
       if (score > alpha){
-        score = -pvSearch(-beta, -alpha, a, depthleft-1, originalDepth, bestMove, left, totalNodes, false);
+        score = -pvSearch(-beta, -alpha, a, depthleft-1, originalDepth, nullBestMove, left, totalNodes, false);
       }
     }
     //--
@@ -297,7 +360,7 @@ uint16_t Engine::runSearchID(int m, int& score, int& nodeCount){
   startClock = std::clock();
   int totalNodes = 0;
   int actualTotalNodes = 0;
-  for (int i=1;i<10;i+=2){
+  for (int i=1;i<10;i++){
     board->resetAttackers();
     uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;
     uint16_t moves[218];
@@ -313,6 +376,7 @@ uint16_t Engine::runSearchID(int m, int& score, int& nodeCount){
     // int s = alphaBeta(-100000, 100000, board->getAttackers(), i, i, bestMove, done, totalNodes, false);
     // Use Principle Variation Search
     // ~45 elo gain
+    //std::cout << i << "\n";
     int s = pvSearch(-100000, 100000, board->getAttackers(), i, i, bestMove, done, totalNodes, false);
     if (i == 1){
       runningBest = bestMove;
@@ -341,6 +405,12 @@ int Engine::getEval() {
       board->generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
   board->color = !board->color;
   uint64_t T = board->getAttackers();
+  uint16_t bestMove = 0;
+  bool done = false;
+  int tot = 0;
+  maxTime = -1;
+  startClock = std::clock();
+  //int EV = pvSearch(-100000, 100000, board->getAttackers(), 1, 1, bestMove, done, tot, false);
   return staticEvaluation(T);
 }
 
@@ -358,6 +428,6 @@ uint16_t Engine::runSearch(int depth, int m) {
   bool done = false;
   maxTime = m;
   int totalNodes = 0;
-  alphaBeta(-100000, 100000, board->getAttackers(), depth, depth, bestMove, done, totalNodes, false);
+  pvSearch(-100000, 100000, board->getAttackers(), depth, depth, bestMove, done, totalNodes, false);
   return bestMove;
 }

@@ -29,19 +29,17 @@ int main() {
   using std::chrono::milliseconds;
 
   Board board = Board();
-
   Engine engine = Engine(&board);
   std::string Line; // to read the command given by the GUI
   std::cout.setf(std::ios::unitbuf); // Make sure that the outputs are sent straight away to the GUI
 
 
-
   while (std::getline(std::cin, Line)) {
     if (Line == "uci") {
       std::cout << "id name TinyChess";
-#ifndef USE_PST
+  #ifndef USE_PST
       std::cout << "-nopst";
-#endif
+  #endif
       std::cout << std::endl;
       std::cout << "id author Anik Patel and Cyrus Yiu" << std::endl;
       std::cout << "uciok" << std::endl;
@@ -62,7 +60,11 @@ int main() {
       return 0;
     } else if (Line == "eval") {
         uint64_t dum = 0;
-        std::cout << "Eval:" << engine.staticEvaluation(dum) << "\n";
+        std::cout << engine.getEval() << "\n";
+    // } else if (Line.substr(0, 5) == "tune "){
+    //   engine.evalScoreTuner(Line);
+    // }
+    
     } else if (Line.substr(0, 3) == "go ") {
       uint16_t m;
       int sc = 0;
@@ -116,52 +118,5 @@ int main() {
       std::cout << "\n";
     }
   }
-
-  //   // Mate testing
-  //   for (int i = 0; i < 120; i++) {
-  // #ifndef PRINT_PGN_ONLY
-  //     std::cout << "Move " << i << "\n";
-  // #endif
-  //     auto t1 = high_resolution_clock::now();
-  //     bool done = false;
-  //     uint16_t bestMove;
-  //     if (i <= BOOK_MOVE_LEN - 1) {
-  //       bestMove = BOOK_MOVES[i];
-  //     }
-  //     else {
-  //       bestMove = engine.runSearch(4, done);
-  //     }
-  //     if (done) {
-  //       break;
-  //     }
-  //     auto t2 = high_resolution_clock::now();
-  //     duration<double, std::milli> ms_double = t2 - t1;
-  // #ifdef PRINT_PGN_ONLY
-  //     if (i % 2 == 0) {
-  //       if (i % 8 == 0) {
-  //         std::cout << "\n";
-  //       }
-  //       std::cout << (i / 2) + 1 << ". ";
-  //     }
-  //     board.printMove(bestMove);
-  //     std::cout << " ";
-  // #else
-  //     std::cout << ((double)(ms_double.count()) / 1000.0) << " seconds.\nEval: ";
-  //     std::cout << engine.staticEvaluation();
-  //     std::cout << "\nBest move: ";
-  //     board.printMove(bestMove);
-  //     std::cout << "\n";
-  // #endif
-  //     std::fill_n(board.captures, 128, 0);
-  //     std::fill_n(board.previousMover, 128, 0);
-  //     std::fill_n(board.previousMoves, 128, 0);
-  //     board.depth = 0;
-  //     board.currentCapture = 0;
-  //     board.makeMove(bestMove);
-
-  // #ifndef PRINT_PGN_ONLY
-  //     board.printBoard();
-  // #endif
-  //   }
   return 0;
 }
