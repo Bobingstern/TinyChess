@@ -33,7 +33,6 @@ int main() {
   std::string Line; // to read the command given by the GUI
   std::cout.setf(std::ios::unitbuf); // Make sure that the outputs are sent straight away to the GUI
 
-
   while (std::getline(std::cin, Line)) {
     if (Line == "uci") {
       std::cout << "id name TinyChess";

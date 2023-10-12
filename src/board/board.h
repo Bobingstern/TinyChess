@@ -28,6 +28,13 @@
 #define BB_BLACK_QUEENS 10
 #define BB_BLACK_KING 11
 
+#define PAWNS 0
+#define ROOKS 1
+#define KNIGHTS 2
+#define BISHOPS 3
+#define QUEENS 4
+#define KING 5
+
 // 00 00 000000 000000
 // 2 bits unused
 // 2 bits r for promo
@@ -143,6 +150,10 @@ class Board {
     uint64_t kingAttackers;
 
     uint64_t attackHQ(uint64_t mask, uint64_t isolated, uint8_t from);
+
+    uint64_t pieces(int type);
+    uint64_t pieces(int type, bool color);
+
   private:
     void sliceReAdd();
     // History

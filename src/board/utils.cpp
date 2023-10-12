@@ -309,6 +309,15 @@ void Board::readFEN(std::string fen){
 
 } 
 
+
+uint64_t Board::pieces(int type){
+  return *bitboards[type];
+}
+
+uint64_t Board::pieces(int type, bool color){
+  return *bitboards[type + 6*color];
+}
+
 uint64_t Board::whiteOccupation() {
   return whitePawns | whiteRooks | whiteKnights | whiteBishops | whiteQueens | whiteKing;
 }

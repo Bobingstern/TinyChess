@@ -2,11 +2,11 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#define PAWN 0
-#define KNIGHT 1
-#define BISHOP 2
-#define ROOK 3
-#define QUEEN 4
+#define PAWNS 0
+#define ROOKS 1
+#define KNIGHTS 2
+#define BISHOPS 3
+#define QUEENS 4
 #define KING 5
 
 /* board representation */
@@ -210,68 +210,14 @@ int Engine::getDistanceBB(uint64_t bb, int sq, int scale){
   return result;
 }
 
-int Engine::doubledPawn(int& mg, int& eg){
-  uint64_t cpy = board->color == WHITE ? board->whitePawns : board->blackPawns;;
-  int result = 0;
-  while (cpy != 0) {
-    uint64_t isolated = cpy & ((~cpy) + 1);
-    if (board->color == WHITE){
-      if (((isolated << 8) & board->whitePawns) != 0){
-        mg -= 5;
-        eg -= 10;
-      }
-      else if (((isolated << 16) & board->whitePawns) != 0){
-        mg -= 5;
-        eg -= 10;
-      }
-    }
-    if (board->color == BLACK){
-      if (((isolated >> 8) & board->blackPawns) != 0){
-        mg -= 7;
-        eg -= 22;
-      }
-      else if (((isolated >> 16) & board->blackPawns) != 0){
-        mg -= 7;
-        eg -= 22;
-      }
-    }
-    cpy &= ~isolated;
-  }
-  return result;
+int Engine::doubledPawn(int& mg, int& eg, bool color){
+
 }
 
-int Engine::passedPawn(uint64_t bb, uint64_t bb2, int& mgScore, int& egScore){
-  uint64_t cpy = bb;
-  bool result = true;
-  int cnt = 0;
-  int8_t bonusMG[8] = {
-    0, 2, 15, 22, 64, 127, 127, 0
-  };
-  int8_t bonusEG[8] = {
-    0, 38, 36, 50, 81, 127, 127, 0
-  };
-  while (cpy != 0) {
-    uint64_t isolated = cpy & ((~cpy) + 1);
-    int from = 63 - __builtin_ctzll(isolated);
-    if (((0x101010101010101ULL << (uint8_t)(7 - (from % 8))) & bb2 ) != 0){
-      result = false;
-    }
-    // if (from % 8 != 0 && ((0x101010101010101ULL << (uint8_t)(7 - ((from-1) % 8))) & bb2 ) != 0){
-    //   result = false;
-    // }
-    // if ((from+1) % 8 != 0 && ((0x101010101010101ULL << (uint8_t)(7 - ((from+1) % 8))) & bb2 ) != 0){
-    //   result = false;
-    // }
-    if (result){
-      int f = from % 8;
-      mgScore += bonusMG[from];
-      egScore += bonusEG[from];
-    }
-    
-    result = true;
-    cpy &= ~isolated;
-  }
-  return cnt;
+
+
+bool moreThanOne(uint64_t bb){
+  return bb & (bb-1);
 }
 
 int Engine::staticEvaluation(uint64_t& attackers) {
@@ -307,53 +253,95 @@ int Engine::staticEvaluation(uint64_t& attackers) {
   // }
 
   //Rook Mobility
-  uint64_t cpy = board->color == WHITE ? board->whiteRooks : board->blackRooks;
+  uint64_t cpy = board->pieces(ROOKS, board->color);
   while (cpy != 0) {
-    uint64_t isolatedRook = cpy & ((~cpy) + 1);
-    uint8_t from = 63 - __builtin_ctzll(isolatedRook);
+    uint64_t isolated = cpy & ((~cpy) + 1);
+    uint8_t from = 63 - __builtin_ctzll(isolated);
     uint64_t attacks = board->rookAttacks(from);
+    uint64_t file = 0x101010101010101ULL << (7 - (isolated % 8));
     mgScore += rookMobility[hammingWeight(attacks)].mg;
     egScore += rookMobility[hammingWeight(attacks)].eg;
-    cpy &= ~isolatedRook;
+    // if ( !(file & (board->pieces(PAWNS, WHITE) | board->pieces(PAWNS, BLACK)))){
+    //   mgScore += 15;
+    //   egScore += 2;
+    // }
+    cpy &= ~isolated;
   }
-  cpy = board->color == BLACK ? board->whiteRooks : board->blackRooks;
+  cpy = board->pieces(ROOKS, !board->color);
   while (cpy != 0) {
-    uint64_t isolatedRook = cpy & ((~cpy) + 1);
-    uint8_t from = 63 - __builtin_ctzll(isolatedRook);
+    uint64_t isolated = cpy & ((~cpy) + 1);
+    uint8_t from = 63 - __builtin_ctzll(isolated);
     uint64_t attacks = board->rookAttacks(from);
+    uint64_t file = 0x101010101010101ULL << (7 - (isolated % 8));
     mgScore -= rookMobility[hammingWeight(attacks)].mg;
     egScore -= rookMobility[hammingWeight(attacks)].eg;
-    cpy &= ~isolatedRook;
+
+    // if ( !(file & ( board->pieces(PAWNS, WHITE) | board->pieces(PAWNS, BLACK) ))){
+    //   mgScore -= 15;
+    //   egScore -= 2;
+    // }
+    cpy &= ~isolated;
   }
   // Bishop Mobility
-  cpy = board->color == WHITE ? board->whiteBishops : board->blackBishops;
+  cpy = board->pieces(BISHOPS, board->color);
   while (cpy != 0) {
-    uint64_t isolatedRook = cpy & ((~cpy) + 1);
-    uint8_t from = 63 - __builtin_ctzll(isolatedRook);
+    uint64_t isolated = cpy & ((~cpy) + 1);
+    uint8_t from = 63 - __builtin_ctzll(isolated);
     uint64_t attacks = board->bishopAttacks(from);
     mgScore += bishopMobility[hammingWeight(attacks)].mg;
     egScore += bishopMobility[hammingWeight(attacks)].eg;
-    cpy &= ~isolatedRook;
+    cpy &= ~isolated;
   }
-  cpy = board->color == BLACK ? board->whiteBishops : board->blackBishops;
+  cpy = board->pieces(BISHOPS, !board->color);
   while (cpy != 0) {
-    uint64_t isolatedRook = cpy & ((~cpy) + 1);
-    uint8_t from = 63 - __builtin_ctzll(isolatedRook);
+    uint64_t isolated = cpy & ((~cpy) + 1);
+    uint8_t from = 63 - __builtin_ctzll(isolated);
     uint64_t attacks = board->bishopAttacks(from);
     mgScore -= bishopMobility[hammingWeight(attacks)].mg;
     egScore -= bishopMobility[hammingWeight(attacks)].eg;
-    cpy &= ~isolatedRook;
+    cpy &= ~isolated;
+  }
+
+  cpy = board->pieces(QUEENS, board->color);
+  while (cpy != 0) {
+    uint64_t isolated = cpy & ((~cpy) + 1);
+    uint8_t from = 63 - __builtin_ctzll(isolated);
+    uint64_t attacks = board->bishopAttacks(from) | board->rookAttacks(from);
+    mgScore += queenMobility[hammingWeight(attacks)].mg;
+    egScore += queenMobility[hammingWeight(attacks)].eg;
+    cpy &= ~isolated;
+  }
+  cpy = board->pieces(QUEENS, !board->color);
+  while (cpy != 0) {
+    uint64_t isolated = cpy & ((~cpy) + 1);
+    uint8_t from = 63 - __builtin_ctzll(isolated);
+    uint64_t attacks = board->bishopAttacks(from) | board->rookAttacks(from);
+    mgScore -= queenMobility[hammingWeight(attacks)].mg;
+    egScore -= queenMobility[hammingWeight(attacks)].eg;
+    cpy &= ~isolated;
   }
   
-  // if (hammingWeight(board->color == WHITE ? board->whiteBishops : board->blackBishops) >= 2){
-  //   mgScore += 22;
-  //   egScore += 87;
+  if (hammingWeight(board->pieces(BISHOPS, board->color)) >= 2){
+    mgScore += 20;
+    egScore += 68;
+  }
+  if (hammingWeight(board->pieces(BISHOPS, !board->color)) >= 2){
+    mgScore -= 20;
+    egScore -= 68;
+  }
+  //------------- Doubled Pawns ------------------
+  // for (int i=0;i<8;i++){
+  //   uint64_t file = 0x101010101010101ULL << i;
+  //   if (moreThanOne(board->pieces(PAWNS, board->color) & file)){
+  //     mgScore -= 15;
+  //     egScore -= 38;
+       
+  //   }
+  //   if (moreThanOne(board->pieces(PAWNS, !board->color) & file)){
+  //     mgScore += 15;
+  //     egScore += 38;
+  //   }
   // }
-  // if (hammingWeight(board->color == BLACK ? board->whiteBishops : board->blackBishops) >= 2){
-  //   mgScore -= 22;
-  //   egScore -= 87;
-  // }
-  //-------------
   
   score = (mgScore * phaseMG + egScore * phaseEG) / 24;
   return score;
