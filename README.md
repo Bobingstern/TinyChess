@@ -39,5 +39,9 @@ cutechess-cli -engine conf=TinyChess1 -engine conf=TinyChess0 -each proto=uci tc
 
 #### TinyChessTest
 
-[TinyChessTest](https://github.com/UnsignedArduino/TinyChessTest) is under development, visit it's repository to find 
-out how to set up the tester and run a tournament. 
+[TinyChessTest](https://github.com/UnsignedArduino/TinyChessTest) is a small testing program, visit it's repository 
+to find out how to set up the tester and run a tournament. This will be deprecated in favor of TinyTest.
+
+#### TinyTest
+
+[TinyTest](https://tinytest.vercel.app/) is the distributed testing program for TinyChess, under development. 
