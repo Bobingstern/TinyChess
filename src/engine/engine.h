@@ -47,7 +47,7 @@ class Engine {
     int staticEvaluation(uint64_t& attackers);
     
     int alphaBeta(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull);
-    int pvSearch(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull);
+    int pvSearch(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull, uint16_t prevBest);
     int zwSearch(int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull);
     int quiesce(int alpha, int beta, uint64_t attackers, int &totalNodes);
     bool badCapture(uint16_t move);
@@ -95,19 +95,14 @@ class Engine {
 
     // int8_t bishopMobilityMG[14] = { -6, -3, -3, -3, -3, -2, -2, -1,  0,  2,  2,  2,  3,  2 };
     // int8_t bishopMobilityEG[14] = { -6, -5, -2,  1,  4,  4,  6,  7,  8,  9, 10, 10, 10, 10 };
-    S rookMobility[15] = {S(1, 1), S(1, 1), S(-44, -19), S(-35, -6), S(-27, 2), S(-23, 6), S(-20, 10), S(-16, 17), S(-9, 18), S(-2, 21), S(4, 26), S(10, 28), S(13, 32), S(20, 35), S(23, 35)};
-    S bishopMobility[14] = {S(1, 1), S(-54, -65), S(-41, -55), S(-34, -22), S(-21, -12), S(-15, -3), S(-2, 12), S(5, 18), S(12, 30), S(14, 33), S(19, 40), S(22, 35), S(22, 35), S(51, 25)};
-    S queenMobility[28] = {S(1, 1), S(1, 1), S(1, 1), S(-54, -15), S(-58, -122), S(-28, -77), S(-26, -54), S(-27, 7), S(-22, 21), S(-21, 42), S(-17, 47), S(-14, 59), S(-11, 70), S(-9, 73), S(-5, 79), S(-4, 87), S(-3, 95), S(-1, 102), S(-1, 109), S(0, 113), S(1, 124), S(5, 123), S(5, 127), S(14, 124), S(15, 123), S(28, 123), S(72, 99), S(127, 80)};
+    S rookMobility[15] = {S(1, 1), S(1, 1), S(-40, -10), S(-31, 3), S(-24, 11), S(-20, 15), S(-17, 18), S(-14, 23), S(-9, 24), S(-3, 27), S(1, 32), S(5, 34), S(6, 38), S(11, 42), S(12, 43)};
+    S bishopMobility[14] = {S(1, 1), S(-52, -63), S(-40, -56), S(-32, -23), S(-20, -13), S(-15, -3), S(-3, 13), S(3, 18), S(8, 31), S(9, 35), S(11, 42), S(11, 38), S(9, 39), S(33, 30)};
+    
+    S queenMobility[28] = {S(1, 1), S(1, 1), S(1, 1), S(-62, -32), S(-53, -122), S(-22, -77), S(-21, -50), S(-22, 9), S(-17, 22), S(-17, 40), S(-13, 44), S(-10, 56), S(-8, 67), S(-6, 71), S(-3, 76), S(-3, 85), S(-3, 92), S(-2, 99), S(-2, 105), S(-1, 110), S(-1, 119), S(1, 118), S(2, 120), S(10, 116), S(12, 114), S(23, 112), S(60, 94), S(110, 75)};
+    
+    S kingDefenders[3] =  {S(-20, 5), S(-24, 6), S(-17, -4)};
+
   private:
-    const uint64_t m1 = 0x5555555555555555;  // binary: 0101...
-    const uint64_t m2 = 0x3333333333333333;  // binary: 00110011..
-    const uint64_t m4 = 0x0f0f0f0f0f0f0f0f;  // binary:  4 zeros,  4 ones ...
-    const uint64_t m8 = 0x00ff00ff00ff00ff;  // binary:  8 zeros,  8 ones ...
-    const uint64_t m16 = 0x0000ffff0000ffff; // binary: 16 zeros, 16 ones ...
-    const uint64_t m32 = 0x00000000ffffffff; // binary: 32 zeros, 32 ones
-    const uint64_t h01 = 0x0101010101010101;
-
-
     S32 material[6] = {S32(78, 193), S32(273, 363), S32(318, 363), S32(415, 640), S32(868, 1142), S32(0, 0)};
     int gamephaseInc[12] = {0, 1, 1, 2, 4, 0};
     

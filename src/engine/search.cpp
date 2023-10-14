@@ -139,7 +139,7 @@ int Engine::zwSearch(int beta, uint64_t attackers, int depthleft, int originalDe
   return beta-1;
 }
 
-int Engine::pvSearch(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull){
+int Engine::pvSearch(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull, uint16_t prevBest){
   totalNodes ++;
   if (depthleft == 0) {
     float ev = 0;
@@ -162,9 +162,15 @@ int Engine::pvSearch(int alpha, int beta, uint64_t attackers, int depthleft, int
   // }
   uint16_t moves[218];
   this->board->resetAttackers();
-  uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;int total = this->board->generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
+  uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;
+  int total = this->board->generateMoves(moves, pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
   quickSort(moves, 0, total-1);
-  
+  if (prevBest != 0 && originalDepth == depthleft){
+    for (int i=total-2;i>=0;i--){
+      moves[i+1] = moves[i];
+    }
+    moves[0] = prevBest;
+  }
   int score = -10000;
   int bestScore = -10000;
   bool noLegal = true;
@@ -191,11 +197,11 @@ int Engine::pvSearch(int alpha, int beta, uint64_t attackers, int depthleft, int
     //   depthleft ++;
     // }
     if (bSearchPv){
-      score = -pvSearch(-beta, -alpha, a, depthleft-1, originalDepth, nullBestMove, left, totalNodes, false);
+      score = -pvSearch(-beta, -alpha, a, depthleft-1, originalDepth, nullBestMove, left, totalNodes, false, 0);
     } else{
       score = -zwSearch(-alpha, a, depthleft-1, originalDepth, nullBestMove, left, totalNodes, false);
       if (score > alpha){
-        score = -pvSearch(-beta, -alpha, a, depthleft-1, originalDepth, nullBestMove, left, totalNodes, false);
+        score = -pvSearch(-beta, -alpha, a, depthleft-1, originalDepth, nullBestMove, left, totalNodes, false, 0);
       }
     }
     //--
@@ -356,7 +362,7 @@ int Engine::quiesce(int alpha, int beta, uint64_t attackers, int &totalNodes){
 }
 
 uint16_t Engine::runSearchID(int m, int& score, int& nodeCount){
-  uint16_t runningBest;
+  uint16_t runningBest = 0;
   startClock = std::clock();
   int totalNodes = 0;
   int actualTotalNodes = 0;
@@ -377,7 +383,7 @@ uint16_t Engine::runSearchID(int m, int& score, int& nodeCount){
     // Use Principle Variation Search
     // ~45 elo gain
     //std::cout << i << "\n";
-    int s = pvSearch(-100000, 100000, board->getAttackers(), i, i, bestMove, done, totalNodes, false);
+    int s = pvSearch(-100000, 100000, board->getAttackers(), i, i, bestMove, done, totalNodes, false, runningBest);
     if (i == 1){
       runningBest = bestMove;
       score = s;
@@ -428,6 +434,6 @@ uint16_t Engine::runSearch(int depth, int m) {
   bool done = false;
   maxTime = m;
   int totalNodes = 0;
-  pvSearch(-100000, 100000, board->getAttackers(), depth, depth, bestMove, done, totalNodes, false);
+  pvSearch(-100000, 100000, board->getAttackers(), depth, depth, bestMove, done, totalNodes, false, 0);
   return bestMove;
 }

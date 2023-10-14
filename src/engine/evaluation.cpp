@@ -13,84 +13,11 @@
 #define WHITE 0
 #define BLACK 1
 int Engine::hammingWeight(uint64_t x) {
-  x -= (x >> 1) & m1;             // put count of each 2 bits into those 2 bits
-  x = (x & m2) + ((x >> 2) & m2); // put count of each 4 bits into those 4 bits
-  x = (x + (x >> 4)) & m4;        // put count of each 8 bits into those 8 bits
-  return (x * h01) >> 56;         // returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24)
+  x -= (x >> 1) & 0x5555555555555555;             // put count of each 2 bits into those 2 bits
+  x = (x & 0x3333333333333333) + ((x >> 2) & 0x3333333333333333); // put count of each 4 bits into those 4 bits
+  x = (x + (x >> 4)) & 0x0f0f0f0f0f0f0f0f;        // put count of each 8 bits into those 8 bits
+  return (x * 0x0101010101010101) >> 56;         // returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24)
 }
-
-// float Engine::pawnPST(int loc){
-//     // Temporary
-//     int16_t mg_pawn_table[64] = {
-//       0,   0,   0,   0,   0,   0,  0,   0,
-//      98, 134,  61,  95,  68, 126, 34, -11,
-//      -6,   7,  26,  31,  65,  56, 25, -20,
-//     -14,  13,   6,  21,  23,  12, 17, -23,
-//     -27,  -2,  -5,  12,  17,   6, 10, -25,
-//     -26,  -4,  -4, -10,   3,   3, 33, -12,
-//     -35,  -1, -20, -23, -15,  24, 38, -22,
-//       0,   0,   0,   0,   0,   0,  0,   0,
-//     };
-//     return mg_pawn_table[ this->board->color == WHITE ? loc : 63 - loc];
-// }
-// float Engine::knightPST(int loc){
-//     // Temporary
-//     int16_t mg_knight_table[64] = {
-//     -167, -89, -34, -49,  61, -97, -15, -107,
-//      -73, -41,  72,  36,  23,  62,   7,  -17,
-//      -47,  60,  37,  65,  84, 129,  73,   44,
-//       -9,  17,  19,  53,  37,  69,  18,   22,
-//      -13,   4,  16,  13,  28,  19,  21,   -8,
-//      -23,  -9,  12,  10,  19,  17,  25,  -16,
-//      -29, -53, -12,  -3,  -1,  18, -14,  -19,
-//     -105, -21, -58, -33, -17, -28, -19,  -23,
-//     };
-//     return mg_knight_table[ this->board->color == WHITE ? loc : 63 - loc];
-// }
-
-// float Engine::bishopPST(int loc){
-//     // Temporary
-//     int16_t mg_bishop_table[64] = {
-//     -29,   4, -82, -37, -25, -42,   7,  -8,
-//     -26,  16, -18, -13,  30,  59,  18, -47,
-//     -16,  37,  43,  40,  35,  50,  37,  -2,
-//      -4,   5,  19,  50,  37,  37,   7,  -2,
-//      -6,  13,  13,  26,  34,  12,  10,   4,
-//       0,  15,  15,  15,  14,  27,  18,  10,
-//       4,  15,  16,   0,   7,  21,  33,   1,
-//     -33,  -3, -14, -21, -13, -12, -39, -21,
-//     };
-//     return mg_bishop_table[ this->board->color == WHITE ? loc : 63 - loc];
-// }
-
-// float Engine::rookPST(int loc){
-//     // Temporary
-//     int16_t mg_rook_table[64] = {
-//     32,  42,  32,  51, 63,  9,  31,  43,
-//      27,  32,  58,  62, 80, 67,  26,  44,
-//      -5,  19,  26,  36, 17, 45,  61,  16,
-//     -24, -11,   7,  26, 24, 35,  -8, -20,
-//     -36, -26, -12,  -1,  9, -7,   6, -23,
-//     -45, -25, -16, -17,  3,  0,  -5, -33,
-//     -44, -16, -20,  -9, -1, 11,  -6, -71,
-//     -19, -13,   1,  17, 16,  7, -37, -26,
-//     };
-//     return mg_rook_table[ this->board->color == WHITE ? loc : 63 - loc];
-// }
-// float Engine::queenPST(int loc){
-//     // Temporary
-//     int16_t mg_queen_table[64] = {
-//     -28,   0,  29,  12,  59,  44,  43,  45,
-//     -24, -39,  -5,   1, -16,  57,  28,  54,
-//     -13, -17,   7,   8,  29,  56,  47,  57,
-//     -27, -27, -16, -16,  -1,  17,  -2,   1,
-//      -9, -26,  -9, -10,  -2,  -4,   3,  -3,
-//     -14,   2, -11,  -2,  -5,   2,  14,   5,
-//     -35,  -8,  11,   2,   8,  15,  -3,   1,
-//      -1, -18,  -9,  10, -15, -25, -31, -50,
-//     };
-//     return mg_queen_table[ this->board->color == WHITE ? loc : 63 - loc];
-// }
 
 int32_t Engine::packScore(int16_t mg, int16_t eg){
   return ((int32_t) eg << 16) + (int32_t) mg;
@@ -229,28 +156,39 @@ int Engine::staticEvaluation(uint64_t& attackers) {
   int egScore = 0;
   int psts = pieceSquareTables(mgScore, egScore);
   int score = 0;
-  //std::cout << mgScore << " " << egScore << " " << phaseMG << " " << phaseEG << "\n";
-  // King saftey
-  int kingDanger = 0;
-  //kingDanger -= 8 * ( board->color == WHITE ? board->blackQueens == 0 : board->whiteQueens == 0);
-  //kingDanger += hammingWeight( board->kingAttacks(board->getKing(), 63 - __builtin_ctzll(board->getKing())) & attackers) * 3;
   int kingFrom = 63 - __builtin_ctzll(board->getKing());
   uint64_t kingArea = board->kingAttacks(board->getKing(), kingFrom);
-  int knightScore = hammingWeight(kingArea & board->knightAttackers);
-  int bishopScore = hammingWeight(kingArea & board->bishopAttackers);
-  int rookScore = hammingWeight(kingArea & board->rookAttackers);
-  int queenScore = hammingWeight(kingArea & board->queenAttackers);
-  int valueOfAttacks = knightScore * 5 + bishopScore * 8 + rookScore * 15 + queenScore * 25;
-  //kingDanger += hammingWeight(kingArea & (board->knightAttackers | board->bishopAttackers | board->rookAttackers | board->queenAttackers)) * (valueOfAttacks);
+  
+  // King defense
+  int cntKing = 0;
 
-  // uint64_t kingFlank = (0x101010101010101ULL << (uint8_t)(7 - (kingFrom % 8)));
-  // int flankDefense = 0;
-  // if (kingFrom % 8 != 0){
-  //   kingFlank |= (0x101010101010101ULL << (uint8_t)(7 - ((kingFrom-1) % 8)));
-  // }
-  // if ((kingFrom+1) % 8 != 0){
-  //   kingFlank |= (0x101010101010101ULL << (uint8_t)(7 - ((kingFrom+1) % 8)));
-  // }
+  cntKing = hammingWeight(kingArea & board->pieces(BISHOPS, !board->color));
+  mgScore += cntKing * kingDefenders[0].mg;
+  egScore += cntKing * kingDefenders[0].eg;
+
+  cntKing = hammingWeight(kingArea & board->pieces(ROOKS, !board->color));
+  mgScore += cntKing * kingDefenders[1].mg;
+  egScore += cntKing * kingDefenders[1].eg;
+
+  cntKing = hammingWeight(kingArea & board->pieces(QUEENS, !board->color));
+  mgScore += cntKing * kingDefenders[2].mg;
+  egScore += cntKing * kingDefenders[2].eg;
+
+  // King defense (Opposing)
+  kingFrom = 63 - __builtin_ctzll(board->pieces(KING, !board->color));
+  kingArea = board->kingAttacks(board->pieces(KING, !board->color), kingFrom);
+  
+  cntKing = hammingWeight(kingArea & board->pieces(BISHOPS, board->color));
+  mgScore -= cntKing * kingDefenders[0].mg;
+  egScore -= cntKing * kingDefenders[0].eg;
+
+  cntKing = hammingWeight(kingArea & board->pieces(ROOKS, board->color));
+  mgScore -= cntKing * kingDefenders[1].mg;
+  egScore -= cntKing * kingDefenders[1].eg;
+
+  cntKing = hammingWeight(kingArea & board->pieces(QUEENS, board->color));
+  mgScore -= cntKing * kingDefenders[2].mg;
+  egScore -= cntKing * kingDefenders[2].eg;
 
   //Rook Mobility
   uint64_t cpy = board->pieces(ROOKS, board->color);
@@ -258,13 +196,19 @@ int Engine::staticEvaluation(uint64_t& attackers) {
     uint64_t isolated = cpy & ((~cpy) + 1);
     uint8_t from = 63 - __builtin_ctzll(isolated);
     uint64_t attacks = board->rookAttacks(from);
-    uint64_t file = 0x101010101010101ULL << (7 - (isolated % 8));
+    uint64_t file = 0x101010101010101ULL << (7 - (from % 8));
     mgScore += rookMobility[hammingWeight(attacks)].mg;
     egScore += rookMobility[hammingWeight(attacks)].eg;
-    // if ( !(file & (board->pieces(PAWNS, WHITE) | board->pieces(PAWNS, BLACK)))){
-    //   mgScore += 15;
-    //   egScore += 2;
-    // }
+    if ( !(file & board->pieces(PAWNS, board->color)) ){
+      if (!(file & board->pieces(PAWNS, !board->color) )){
+        mgScore += 16;
+        egScore += 1;
+      }
+      else {
+        mgScore += 2;
+        egScore -= 3;
+      }
+    }
     cpy &= ~isolated;
   }
   cpy = board->pieces(ROOKS, !board->color);
@@ -272,14 +216,20 @@ int Engine::staticEvaluation(uint64_t& attackers) {
     uint64_t isolated = cpy & ((~cpy) + 1);
     uint8_t from = 63 - __builtin_ctzll(isolated);
     uint64_t attacks = board->rookAttacks(from);
-    uint64_t file = 0x101010101010101ULL << (7 - (isolated % 8));
+    uint64_t file = 0x101010101010101ULL << (7 - (from % 8));
     mgScore -= rookMobility[hammingWeight(attacks)].mg;
     egScore -= rookMobility[hammingWeight(attacks)].eg;
 
-    // if ( !(file & ( board->pieces(PAWNS, WHITE) | board->pieces(PAWNS, BLACK) ))){
-    //   mgScore -= 15;
-    //   egScore -= 2;
-    // }
+    if ( !(file & board->pieces(PAWNS, !board->color)) ){
+      if (!(file & board->pieces(PAWNS, board->color) )){
+        mgScore -= 16;
+        egScore -= 1;
+      }
+      else {
+        mgScore -= 2;
+        egScore += 3;
+      }
+    }
     cpy &= ~isolated;
   }
   // Bishop Mobility
@@ -323,11 +273,11 @@ int Engine::staticEvaluation(uint64_t& attackers) {
   
   if (hammingWeight(board->pieces(BISHOPS, board->color)) >= 2){
     mgScore += 20;
-    egScore += 68;
+    egScore += 67;
   }
   if (hammingWeight(board->pieces(BISHOPS, !board->color)) >= 2){
     mgScore -= 20;
-    egScore -= 68;
+    egScore -= 67;
   }
   //------------- Doubled Pawns ------------------
   // for (int i=0;i<8;i++){
