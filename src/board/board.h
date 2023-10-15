@@ -167,12 +167,6 @@ class Board {
     uint64_t rotateAnti90(uint64_t n);
 
     uint64_t obstructionDifference(uint8_t from, uint64_t ray);
-    
-
-    
-    
-
-    
 
     // Castling flags
     bool flagWhiteKingsideCastle = 1; // 1 means it can castle

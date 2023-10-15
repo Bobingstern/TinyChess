@@ -69,7 +69,7 @@ int main() {
       int sc = 0;
       int nodes = 0;
       if (Line.substr(3, Line.length()) == "infinite") {
-        m = engine.runSearch(4, -1);
+        m = engine.runSearch(6, -1);
       } else {
         
         if (Line.substr(3, 9) == "movetime "){

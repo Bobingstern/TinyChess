@@ -46,10 +46,9 @@ class Engine {
     Board* board = nullptr;
     int staticEvaluation(uint64_t& attackers);
     
-    int alphaBeta(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull);
-    int pvSearch(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull, uint16_t prevBest);
-    int zwSearch(int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull);
-    int quiesce(int alpha, int beta, uint64_t attackers, int &totalNodes);
+    int quiesce(int alpha, int beta, uint64_t attackers, int &totalNodes, int depth);
+    int search(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull, uint16_t prevBest, bool isPV);
+
     bool badCapture(uint16_t move);
     uint16_t runSearch(int depth, int maxTime);
     uint16_t runSearchID(int maxTime, int& score, int& nodes);
@@ -100,9 +99,10 @@ class Engine {
     
     S queenMobility[28] = {S(1, 1), S(1, 1), S(1, 1), S(-62, -32), S(-53, -122), S(-22, -77), S(-21, -50), S(-22, 9), S(-17, 22), S(-17, 40), S(-13, 44), S(-10, 56), S(-8, 67), S(-6, 71), S(-3, 76), S(-3, 85), S(-3, 92), S(-2, 99), S(-2, 105), S(-1, 110), S(-1, 119), S(1, 118), S(2, 120), S(10, 116), S(12, 114), S(23, 112), S(60, 94), S(110, 75)};
     
-    S kingDefenders[3] =  {S(-20, 5), S(-24, 6), S(-17, -4)};
+    S kingAttackers[3] =  {S(-20, 5), S(-24, 6), S(-17, -4)};
 
   private:
+    int qCheck = 0;
     S32 material[6] = {S32(78, 193), S32(273, 363), S32(318, 363), S32(415, 640), S32(868, 1142), S32(0, 0)};
     int gamephaseInc[12] = {0, 1, 1, 2, 4, 0};
     
