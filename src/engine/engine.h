@@ -7,6 +7,7 @@
 #include <vector>
 #include <string.h>
 #include <string>
+#include <chrono>
 
 #define USE_PST
 
@@ -79,10 +80,11 @@ class Engine {
     int8_t kingPST(int loc);
     int8_t egKingPST(int loc);
 
-    std::clock_t startClock;
+    std::chrono::high_resolution_clock::time_point startClock;
     int maxTime = -1;
     int phaseEG = 0;
     int phaseMG = 0;
+    uint16_t PV[16] = {};
 
     int partition(uint16_t arr[], int start, int end);
     void quickSort(uint16_t arr[], int start, int end);

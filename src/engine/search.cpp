@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <string>
 #include <ctime>
-
+#include <math.h>
+#include <chrono>
 //position fen rnbqkbnr/ppp1pppp/8/3p4/5P2/8/PPPPP1PP/RNBQKBNR w KQkq - 0 1 moves e2e3 d5d4 e3e4 d4d3 f1d3 h7h5 g1f3 h5h4 e1g1 h4h3 g2h3 e7e6 d3b5 c7c6 b5c4 b7b5 c4e2 b5b4 g1g2 f7f5 e4f5 e6f5 e2c4 g8h6 f3g5 g7g6 g5e6 d8d6 e6f8 h8f8 c2c3 b4c3 d2c3 d6d1 f1d1 c8b7 c1e3 a7a5 e3c5 f8f6 d1e1 e8d7 e1e7 d7c8 b1d2 a5a4 a1d1 g6g5 f4g5 f6g6 c4e6 g6e6 e7e6 a8a5 g5h6 a5c5 h6h7 c8d7 h7h8q d7e6 h8b8 b7a6 b8b6 a6e2 b6c5 e2d1 c5c6 e6e5 d2c4 e5f4 c6d6 f4g5 d6d1 a4a3 b2a3 f5f4 d1g4 g5h6 g4f4 h6g6 h3h4 g6h7 h4h5 h7g7 f4f5 g7g8 h5h6 g8h8 f5g4 h8h7 c4e5 h7h8 h2h3 h8h7 h3h4 h7h8 c3c4 h8h7 a3a4 h7h8 a2a3 h8h7 h4h5 h7h8 c4c5 h8h7 a4a5 h7h8 a3a4 h8h7 c5c6 h7h8 a5a6 h8h7 a4a5 h7h8 c6c7 h8h7 a6a7 h7h8 a5a6 h8h7 c7c8n h7h8 a7a8n h8h7 a6a7 h7h8
 
 
@@ -91,7 +92,6 @@ void Engine::quickSort(uint16_t arr[], int start, int end)
     quickSort(arr, p + 1, end);
 }
 
-
 int Engine::search(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull, uint16_t prevBest, bool isPV){
   totalNodes ++;
   if (depthleft <= 0) {
@@ -102,7 +102,9 @@ int Engine::search(int alpha, int beta, uint64_t attackers, int depthleft, int o
   if (alpha >= beta){
     return alpha;
   }
-  if ((maxTime != -1 && (std::clock() - startClock) >= maxTime - maxTime*0.05)){
+  std::chrono::duration<double, std::milli> ms_double = std::chrono::high_resolution_clock::now() - startClock;
+  int elapsed = (int)(ms_double.count());
+  if ((maxTime != -1 && elapsed >= maxTime - maxTime*0.05)){
     left = true;
     return alpha;
   }
@@ -114,7 +116,6 @@ int Engine::search(int alpha, int beta, uint64_t attackers, int depthleft, int o
   int score = -100000;
   int bestScore = -100001;
   bool noLegal = true;
-  
   for (int i=0;i<total;i++){
     this->board->setAttackers(pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks);
     uint64_t isolated = this->board->getKing();
@@ -154,6 +155,10 @@ int Engine::search(int alpha, int beta, uint64_t attackers, int depthleft, int o
       if (bestScore > alpha){
         alpha = bestScore;
         bestMove = moves[i];
+        if (isPV){
+          if (depthleft < 16)
+            PV[depthleft] = moves[i];
+        }
       }
     }
   }
@@ -169,7 +174,9 @@ int Engine::search(int alpha, int beta, uint64_t attackers, int depthleft, int o
 int Engine::quiesce(int alpha, int beta, uint64_t attackers, int &totalNodes, int depth){
   totalNodes ++;
   int stand_pat = staticEvaluation(attackers);
-  if ((maxTime != -1 && (std::clock() - startClock) >= maxTime - maxTime*0.05))
+  std::chrono::duration<double, std::milli> ms_double = std::chrono::high_resolution_clock::now() - startClock;
+  int elapsed = (int)(ms_double.count());
+  if ((maxTime != -1 && elapsed >= maxTime - maxTime*0.05))
     return alpha;
   if( stand_pat >= beta )
     return beta;
@@ -216,9 +223,10 @@ int Engine::quiesce(int alpha, int beta, uint64_t attackers, int &totalNodes, in
 
 uint16_t Engine::runSearchID(int m, int& score, int& nodeCount){
   uint16_t runningBest = 0;
-  startClock = std::clock();
+  startClock = std::chrono::high_resolution_clock::now();
   int totalNodes = 0;
   int actualTotalNodes = 0;
+  int prevElapsed = 1;
   for (int i=1;i<10;i++){
     board->resetAttackers();
     uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;
@@ -235,8 +243,16 @@ uint16_t Engine::runSearchID(int m, int& score, int& nodeCount){
     // int s = alphaBeta(-100000, 100000, board->getAttackers(), i, i, bestMove, done, totalNodes, false);
     // Use Principle Variation Search
     // ~45 elo gain
-    //std::cout << i << "\n";
+    for (int j=0;j<16;j++){
+      PV[j] = 0;
+    }
+    auto t1 = std::chrono::high_resolution_clock::now();
     int s = search(-100000, 100000, board->getAttackers(), i, i, bestMove, done, totalNodes, false, runningBest, true);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+    double elapsed = (double)(ms_double.count()) / 1000.0;
+    // If time left on the clock is not enough to research all the nodes we just did then dont even bother
+    actualTotalNodes += totalNodes;
     if (i == 1){
       runningBest = bestMove;
       score = s;
@@ -244,10 +260,20 @@ uint16_t Engine::runSearchID(int m, int& score, int& nodeCount){
     if (done){
       break;
     }
-    else{
-      actualTotalNodes = totalNodes;
+    else {
       runningBest = bestMove;
+      score = s;
+      std::cout << "info score cp " << s << " nodes " << totalNodes << " nps " << totalNodes / elapsed << " pv ";
+      for (int j=15;j>=0;j--){
+        if (PV[j] == 0){
+          continue;
+        }
+        board->printMove(PV[j]);
+        std::cout << " ";
+      }
+      std::cout << "\n";
     }
+    
   }
   //std::cout << "Searched: " << actualTotalNodes << "\n";
   nodeCount = actualTotalNodes;
@@ -268,13 +294,13 @@ int Engine::getEval() {
   bool done = false;
   int tot = 0;
   maxTime = -1;
-  startClock = std::clock();
+  startClock = std::chrono::high_resolution_clock::now();
   //int EV = pvSearch(-100000, 100000, board->getAttackers(), 1, 1, bestMove, done, tot, false);
   return staticEvaluation(T);
 }
 
 uint16_t Engine::runSearch(int depth, int m) {
-  startClock = std::clock();
+  startClock = std::chrono::high_resolution_clock::now();
   board->resetAttackers();
   uint64_t pawnAttacks, rookAttacks, knightAttacks, bishopAttacks, queenAttacks, kingAttacks;
   uint16_t moves[218];

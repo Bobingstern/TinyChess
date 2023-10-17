@@ -50,8 +50,8 @@ int main() {
     } else if (Line == "ucinewgame") {
       board.readFEN("position startpos");
     }
-    else if (Line == "perft") {
-      engine.runPerft(1);
+    else if (Line.substr(0, 5) == "perft") {
+      engine.runPerft(std::stoi(Line.substr(6, 7)));
     }
     if (Line.substr(0, 8) == "position") {
       board.readFEN(Line);
@@ -111,7 +111,6 @@ int main() {
           m = engine.runSearchID(timeLeft, sc, nodes);
         }
       }
-      std::cout << "info score cp " << sc << " nodes " << nodes << "\n";
       std::cout << "bestmove ";
       board.printMove(m);
       std::cout << "\n";
