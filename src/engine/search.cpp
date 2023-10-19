@@ -92,12 +92,14 @@ void Engine::quickSort(uint16_t arr[], int start, int end)
     quickSort(arr, p + 1, end);
 }
 
-int Engine::search(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull, uint16_t prevBest, bool isPV){
+int Engine::search(int alpha, int beta, uint64_t attackers, int depthleft, int originalDepth, uint16_t &bestMove, bool &left, int &totalNodes, bool wasNull, uint16_t prevBest, bool isPV, int pvIndex){
   totalNodes ++;
+  bool wasCheckExtension = false;
   if (depthleft <= 0) {
     if (!(board->getKing() & attackers))
       return quiesce(alpha, beta, attackers, totalNodes, 0);
     depthleft = 1;
+    wasCheckExtension = true;
   }
   if (alpha >= beta){
     return alpha;
@@ -133,17 +135,13 @@ int Engine::search(int alpha, int beta, uint64_t attackers, int depthleft, int o
     noLegal = false;
     uint16_t nbm = 0;
     if (i == 0){
-      score = -search(-beta, -alpha, a, depthleft - 1, originalDepth, nbm, left, totalNodes, false, 0, isPV);
+      score = -search(-beta, -alpha, a, depthleft - 1, originalDepth, nbm, left, totalNodes, false, 0, isPV, pvIndex - 1);
     }
     else {
-      score = -search(-alpha-1, -alpha, a, depthleft - 1, originalDepth, nbm, left, totalNodes, false, 0, false);
+      score = -search(-alpha-1, -alpha, a, depthleft - 1, originalDepth, nbm, left, totalNodes, false, 0, false, pvIndex - 1);
       if (score > alpha && isPV){
-        score = -search(-beta, -alpha, a, depthleft - 1, originalDepth, nbm, left, totalNodes, false, 0, true);
+        score = -search(-beta, -alpha, a, depthleft - 1, originalDepth, nbm, left, totalNodes, false, 0, true, pvIndex - 1);
       }
-    }
-    if (originalDepth == depthleft){
-      // board->printMove(moves[i]);
-      // std::cout << " score:" << score << "\n";
     }
     board->unmakeMove(moves[i]);
 
@@ -156,8 +154,13 @@ int Engine::search(int alpha, int beta, uint64_t attackers, int depthleft, int o
         alpha = bestScore;
         bestMove = moves[i];
         if (isPV){
-          if (depthleft < 16)
-            PV[depthleft] = moves[i];
+          if (pvIndex >= 0 && !wasCheckExtension){
+            PV[pvIndex] = moves[i];
+            if (depthleft == originalDepth){
+              //board->printMove(PV[pvIndex]);
+              //std::cout << " " << pvIndex << "\n";
+            }
+          }
         }
       }
     }
@@ -247,7 +250,7 @@ uint16_t Engine::runSearchID(int m, int& score, int& nodeCount){
       PV[j] = 0;
     }
     auto t1 = std::chrono::high_resolution_clock::now();
-    int s = search(-100000, 100000, board->getAttackers(), i, i, bestMove, done, totalNodes, false, runningBest, true);
+    int s = search(-100000, 100000, board->getAttackers(), i, i, bestMove, done, totalNodes, false, runningBest, true, 15);
     auto t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> ms_double = t2 - t1;
     double elapsed = (double)(ms_double.count()) / 1000.0;
@@ -263,15 +266,16 @@ uint16_t Engine::runSearchID(int m, int& score, int& nodeCount){
     else {
       runningBest = bestMove;
       score = s;
-      std::cout << "info score cp " << s << " nodes " << totalNodes << " nps " << totalNodes / elapsed << " pv ";
-      for (int j=15;j>=0;j--){
-        if (PV[j] == 0){
-          continue;
-        }
-        board->printMove(PV[j]);
-        std::cout << " ";
-      }
-      std::cout << "\n";
+      std::cout << "info score cp " << s << " nodes " << totalNodes << " nps " << totalNodes / elapsed << "\n";
+      // std::cout << "info score cp " << s << " nodes " << totalNodes << " nps " << totalNodes / elapsed << " pv ";
+      // for (int j=15;j>=0;j--){
+      //   if (PV[j] == 0){
+      //     continue;
+      //   }
+      //   board->printMove(PV[j]);
+      //   std::cout << " ";
+      // }
+      // std::cout << "\n";
     }
     
   }
@@ -313,6 +317,6 @@ uint16_t Engine::runSearch(int depth, int m) {
   bool done = false;
   maxTime = m;
   int totalNodes = 0;
-  search(-100000, 100000, board->getAttackers(), depth, depth, bestMove, done, totalNodes, false, 0, true);
+  search(-100000, 100000, board->getAttackers(), depth, depth, bestMove, done, totalNodes, false, 0, true, 15);
   return bestMove;
 }

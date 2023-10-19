@@ -115,11 +115,11 @@ class Board {
     void printAllBitBoards();
 
     void readFEN(std::string fen);
-    int captures[128];
+    int captures[32];
     int currentCapture = 0;
     int depth = 0;
-    uint16_t previousMoves[128];
-    uint16_t previousMover[128];
+    uint16_t previousMoves[32];
+    uint16_t previousMover[32];
     int caps = 0;
 
     uint64_t kingAttacks(uint64_t isolated, uint8_t from);

@@ -50,6 +50,11 @@ int main() {
     } else if (Line == "ucinewgame") {
       board.readFEN("position startpos");
     }
+    else if (Line == "info"){
+      std::cout << "Board Size: " << sizeof(board) << "\n";
+      std::cout << "Engine Size: " << sizeof(engine) << "\n";
+      std::cout << "Total Size: " << sizeof(engine) + sizeof(board) << "\n";
+    }
     else if (Line.substr(0, 5) == "perft") {
       engine.runPerft(std::stoi(Line.substr(6, 7)));
     }

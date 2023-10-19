@@ -201,12 +201,12 @@ int Engine::staticEvaluation(uint64_t& attackers) {
     egScore += rookMobility[hammingWeight(attacks)].eg;
     if ( !(file & board->pieces(PAWNS, board->color)) ){
       if (!(file & board->pieces(PAWNS, !board->color) )){
-        mgScore += 16;
+        mgScore += 12;
         egScore += 0;
       }
       else {
-        mgScore += 1;
-        egScore -= 7;
+        // mgScore += 1;
+        // egScore -= 7;
       }
     }
     cpy &= ~isolated;
@@ -222,12 +222,12 @@ int Engine::staticEvaluation(uint64_t& attackers) {
 
     if ( !(file & board->pieces(PAWNS, !board->color)) ){
       if (!(file & board->pieces(PAWNS, board->color) )){
-        mgScore -= 16;
+        mgScore -= 12;
         egScore -= 0;
       }
       else {
-        mgScore -= 1;
-        egScore += 7;
+        // mgScore -= 1;
+        // egScore += 7;
       }
     }
     cpy &= ~isolated;
@@ -301,12 +301,12 @@ int Engine::staticEvaluation(uint64_t& attackers) {
   // }
   
   if (hammingWeight(board->pieces(BISHOPS, board->color)) >= 2){
-    mgScore += 21;
-    egScore += 66;
+    mgScore += 22;
+    egScore += 68;
   }
   if (hammingWeight(board->pieces(BISHOPS, !board->color)) >= 2){
-    mgScore -= 21;
-    egScore -= 66;
+    mgScore -= 22;
+    egScore -= 68;
   }
   //------------- Doubled Pawns ------------------
   // for (int i=0;i<8;i++){

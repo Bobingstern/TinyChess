@@ -44,12 +44,12 @@ uint64_t Engine::perft(int depth, uint64_t attackers, int originalDepth) {
     uint64_t isolated = this->board->getKing();
     bool check = (attackers & isolated) != 0;
     this->board->makeMove(move);
-    uint64_t a = this->board->getAttackers();
+    //uint64_t a = this->board->getAttackers();
     if (!this->board->isLegal(attackers, check)) {
       this->board->unmakeMove(move);
       continue;
     }
-    uint64_t newNodes = perft(depth - 1, a, originalDepth);
+    uint64_t newNodes = perft(depth - 1, this->board->getAttackers(), originalDepth);
     if (depth == originalDepth) {
       std::cout << "(" << (i + 1) << "/" << total << ") ";
       this->board->printMove(move);

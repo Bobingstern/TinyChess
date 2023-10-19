@@ -111,9 +111,9 @@ void Board::readFEN(std::string fen){
   flagBlackKingsideCastle = 0;
   flagWhiteQueensideCastle = 0;
   flagBlackQueensideCastle = 0;
-  std::fill_n(captures, 128, 0);
-  std::fill_n(previousMover, 128, 0);
-  std::fill_n(previousMoves, 128, 0);
+  std::fill_n(captures, 32, 0);
+  std::fill_n(previousMover, 32, 0);
+  std::fill_n(previousMoves, 32, 0);
   int row = 0;
   for (int i=0;i<12;i++){
     *bitboards[i] = 0ULL;
